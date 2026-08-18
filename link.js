@@ -8,7 +8,7 @@
    So: play a real daily in a real page, put the real Worker behind the real
    fetch, and watch a run travel all the way to a board and back into the
    summary screen. Then break the network and check nobody's run is lost. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const PLAY = require('./playdaily');
 const E = require('./server/src/engine.js');
 const fs = require('fs'), vm = require('vm');

@@ -2,7 +2,7 @@
    file:// and an install prompt will not fire without a valid manifest. Checks
    the things the stores and the browser actually check, then pulls the network
    out from under the game to prove it still opens. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');

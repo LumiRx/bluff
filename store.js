@@ -1,4 +1,4 @@
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const passGate = require('./gate');
 (async()=>{
   const b=await chromium.launch();const errs=[];

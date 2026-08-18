@@ -1,7 +1,7 @@
 /* Renders the bed and the effects to real audio files, through the exact chain
    the game plays them through, so they can be listened to instead of described.
    Writes 16-bit WAV; ffmpeg turns them into mp3 afterwards. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const passGate = require('./gate');
 const fs = require('fs');
 

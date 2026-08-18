@@ -1,4 +1,4 @@
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 (async()=>{
   const b=await chromium.launch();const errs=[];
   const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2});

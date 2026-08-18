@@ -2,7 +2,7 @@
    it: same voices, same limiter, same make-up. Checks that it is actually
    music (it loops, it changes chord, it has a pulse), that it sits under the
    effects rather than over them, that it ducks, and that mute means mute. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const passGate = require('./gate');
 const path = 'file://' + __dirname + '/index.html';
 

@@ -3,7 +3,7 @@
    silently does nothing is a bug even if the maths underneath is perfect.
    The sound hooks are counted rather than heard -- if a moment is supposed to
    make a noise, this proves the call actually got reached. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const passGate = require('./gate');
 const path = 'file://' + __dirname + '/index.html';
 

@@ -3,7 +3,7 @@
    player decided, then hands those decisions to the server engine and demands
    an identical number. Anything else means an honest player would be rejected
    — or a cheat accepted — and the whole prize is unsafe. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const passGate = require('./gate');
 const PLAY = require('./playdaily');
 const E = require('./server/src/engine.js');

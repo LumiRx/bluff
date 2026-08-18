@@ -1,6 +1,6 @@
 /* Final look-over: the table mid-hand, the showdown that teaches the word,
    the summary board, and the profile with the sound switch. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const passGate = require('./gate');
 
 (async () => {

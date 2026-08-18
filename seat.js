@@ -7,7 +7,11 @@
 
    node seat.js
 */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
+/* Handles are claimed permanently on the server and every suite hardcoded the
+   same one, so the first suite to run took it and the rest died on "VIV is
+   taken". Node-side only — never reference this inside page.evaluate. */
+const HANDLE = 'V' + Date.now().toString(36).slice(-4).toUpperCase();
 let pass=0; const bad=[];
 const ok=m=>{pass++;console.log('   · '+m);};
 const no=m=>{bad.push(m);console.log('   ✗ '+m);};
@@ -17,10 +21,12 @@ const is=(a,b,m)=>a===b?ok(m):no(`${m} — got ${JSON.stringify(a)}, wanted ${JS
   const b=await chromium.launch();
   const p=await b.newPage({viewport:{width:414,height:896}});
   p.on('pageerror',e=>no('PAGEERROR '+e.message));
-  await p.goto('file:///home/claude/bluff/index.html');
+  await p.goto('file://' + __dirname + '/index.html');
   await p.waitForSelector('#tos'); await p.check('#tos'); await p.click('#gGo');
-  await p.waitForSelector('#hnd'); await p.fill('#hnd','VIV'); await p.click('#go2');
-  await p.waitForSelector('#cash');
+  await p.waitForSelector('#hnd'); await p.fill('#hnd',HANDLE); await p.click('#go2');
+  /* v1 ships with CASH=false, so #cash is in the DOM but hidden. This wait is
+     only a "home screen is ready" marker, so wait for attachment, not visibility. */
+  await p.waitForSelector('#cash',{state:'attached'});
 
   /* many draws, so this is about the distribution and not about one lucky seed */
   const draw = (rating, extra) => p.evaluate(([r,x]) => {

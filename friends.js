@@ -9,7 +9,7 @@
    Everything runs against the real Worker and the real Durable Objects, in two
    separate browser contexts, because "two players" is the entire feature and a
    single-context test would prove nothing. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const PLAY = require('./playdaily');
 const E = require('./server/src/engine.js');
 const fs = require('fs'), vm = require('vm');

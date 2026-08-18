@@ -1,7 +1,7 @@
 {
   "name": "bluff",
   "version": "3.0.0",
-  "description": "BLUFF \u2014 poker structure, word deduction",
+  "description": "BLUFF — poker structure, word deduction",
   "private": true,
   "scripts": {
     "icons": "python3 tools/icons.py",
@@ -14,13 +14,14 @@
     "test": "node test.js && node flow.js && node audio.js && node fit.js && node store.js && node home.js && node items.js && node muck.js && node clock.js && node chest.js"
   },
   "devDependencies": {
+    "@capacitor/android": "^6.2.0",
     "@capacitor/cli": "^6.2.0",
     "@capacitor/core": "^6.2.0",
+    "@capacitor/haptics": "^6.0.2",
     "@capacitor/ios": "^6.2.0",
-    "@capacitor/android": "^6.2.0",
+    "@capacitor/push-notifications": "^6.0.2",
     "@capacitor/splash-screen": "^6.0.3",
     "@capacitor/status-bar": "^6.0.2",
-    "@capacitor/haptics": "^6.0.2",
-    "@capacitor/push-notifications": "^6.0.2"
+    "playwright": "^1.62.1"
   }
 }

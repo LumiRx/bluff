@@ -4,7 +4,7 @@
    the check refuse it. Also re-implements the contract's evaluate() in JS and
    agrees with the game's, because those two marking every hand differently is
    how you end up paying the wrong person. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const path = 'file://' + __dirname + '/crypto/index.html';
 
 (async () => {

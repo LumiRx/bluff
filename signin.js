@@ -7,7 +7,7 @@
 
    node signin.js
 */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 let pass=0; const bad=[];
 const ok=m=>{pass++;console.log('   · '+m);};
 const no=m=>{bad.push(m);console.log('   ✗ '+m);};
@@ -52,7 +52,7 @@ const SERVER = () => {
   await ctx.addInitScript(SERVER);
   const p=await ctx.newPage();
   p.on('pageerror',e=>no('PAGEERROR '+e.message));
-  await p.goto('file:///home/claude/bluff/index.html');
+  await p.goto('file://' + __dirname + '/index.html');
   await p.waitForSelector('#tos'); await p.check('#tos'); await p.click('#gGo');
   await p.waitForSelector('#hnd');
 

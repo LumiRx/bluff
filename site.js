@@ -1,7 +1,7 @@
 /* Serves site/ the way Cloudflare Pages will — including _redirects, so the
    extensionless legal URLs App Review clicks actually resolve — then checks the
    things that decide whether an ad converts and a submission passes. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -39,6 +39,9 @@ const server = http.createServer((req, res) => {
 
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 },
     isMobile: true, hasTouch: true });
+  /* /api/hit is a Pages Function. Under a static file server it 404s, which is a
+     local artefact rather than a defect — stub it for every page in the run. */
+  await ctx.route('**/api/hit', r => r.fulfill({ status: 204, body: '' }));
   const page = await ctx.newPage();
   page.on('pageerror', e => bad('PAGEERROR ' + e.message));
   page.on('console', m => { if (m.type() === 'error') bad('CONSOLE ' + m.text()); });
@@ -140,12 +143,12 @@ const server = http.createServer((req, res) => {
   }
 
   console.log('\n4. the launch-list form');
-  await page.route('**/api/notify', r => r.fulfill({ status: 200, body: '{"ok":true}' }));
+  await page.route('**/api/notify', r => r.fulfill({ status: 200, body: '{"ok":true,"stored":true}' }));
   await page.fill('#nemail', 'someone@example.com');
   await page.click('#nf button');
   await page.waitForTimeout(250);
   const msg = await page.evaluate(() => document.getElementById('nmsg').innerText);
-  if (!/on the list/i.test(msg)) bad(`the form said "${msg}" instead of confirming`);
+  if (!/(you are in|on the list)/i.test(msg)) bad(`the form said "${msg}" instead of confirming`);
   else ok('the form posts and confirms');
 
   console.log('\n5. the legal pages say the things they have to');

@@ -1,4 +1,4 @@
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const { qrSvg } = require('./qr.js');
 (async () => {
   const b = await chromium.launch();

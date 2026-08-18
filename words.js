@@ -8,7 +8,7 @@
    refuses to let somebody be called NIGHTOWL.
 
    So this checks both directions, every time. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const passGate = require('./gate');
 
 (async () => {

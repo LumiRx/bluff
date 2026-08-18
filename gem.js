@@ -1,6 +1,6 @@
 /* Catches the felt at several points in the shimmer cycle so I can see the
    band actually travel, and does it for every table skin. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const passGate = require('./gate');
 
 (async () => {

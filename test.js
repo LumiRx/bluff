@@ -1,5 +1,5 @@
 const GUESSES_MAX = 4;
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const passGate = require('./gate');
 const path = 'file://' + __dirname + '/index.html';
 

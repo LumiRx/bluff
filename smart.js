@@ -1,6 +1,6 @@
 /* Plays as a competent human: filters candidates properly, folds thin clues.
    Confirms in the real browser build that a good player can crack words and win chips. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch();
   const errs=[]; let calls=0, cracks=0, folds=0, sets=0, setterNet=0;

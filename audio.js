@@ -1,7 +1,7 @@
 /* Renders every sound offline and measures it. I cannot hear these, so the
    only honest check is numeric: does the buffer contain signal, how loud does
    it peak, how long does it actually last, and does mute really silence it. */
-const { chromium } = require('/opt/node-tools/node_modules/playwright');
+const { chromium } = require('playwright');
 const passGate = require('./gate');
 const path = 'file://' + __dirname + '/index.html';
 
