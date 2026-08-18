@@ -1,0 +1,14 @@
+# Cloudflare Pages already serves /privacy from privacy.html natively and
+# 308-redirects /privacy.html -> /privacy. The old "/privacy /privacy.html 200"
+# rewrites fought that and produced an INFINITE REDIRECT LOOP on every legal
+# page. App Review clicks those URLs. Do not reintroduce them.
+
+# App Review and ad platforms both look for these exact paths
+/privacy-policy  /privacy  301
+/tos             /terms    301
+/play            /play/    301
+
+# /t/<code> and /c/<code> are Pages Functions, NOT redirect rules.
+# Cloudflare does not substitute :splat inside a query string — the old
+# `/t/* /play/?c=:splat 302` rule sent every shared invite to a literal
+# ":splat" and silently broke the join-a-table loop. See functions/t/[code].js.

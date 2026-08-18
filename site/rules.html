@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>House rules — BLUFF Daily</title>
+<meta name="description" content="How the BLUFF Daily works: the same six hands for everyone until midnight UTC, one run a day, and stars for the top three. No money in the game.">
+<link rel="canonical" href="https://webluff.com/rules">
+<meta name="theme-color" content="#FBF8F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14161B" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BLUFF">
+<meta property="og:title" content="House rules — BLUFF Daily">
+<meta property="og:description" content="How the BLUFF Daily works: the same six hands for everyone until midnight UTC, one run a day, and stars for the top three. No money in the game.">
+<meta property="og:url" content="https://webluff.com/rules">
+<meta property="og:image" content="https://webluff.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/icons/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<style>
+:root{
+  --bg:#FBF8F3; --line:#E2D9CB; --gold:#9B6524; --cream:#1C1F26; --dim:#7C8493;
+  --hit:#3F7A52; --near:#B5832F; --miss:#D8D0C2;
+  --feltA:#F3EDE4; --feltB:#F3EDE4; --feltC:#FBF8F3; --feltD:#FBF8F3;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--cream);
+  font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--gold)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+.narrow{max-width:720px}
+nav{position:sticky;top:0;z-index:50;background:rgba(10,18,16,.88);
+  backdrop-filter:blur(14px);border-bottom:1px solid #E2D9CB}
+nav .wrap{display:flex;align-items:center;gap:14px;height:62px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:inherit;font-weight:800;
+  letter-spacing:.22em;font-size:15px}
+.logo img{width:28px;height:28px;border-radius:8px}
+.logo b{color:var(--gold);font-weight:800}
+nav .sp{flex:1}
+nav a.nl{color:var(--dim);text-decoration:none;font-size:12.5px;letter-spacing:.06em;font-weight:600}
+nav a.nl:hover{color:var(--cream)}
+.btn{display:inline-block;text-decoration:none;font-weight:800;font-size:13px;letter-spacing:.1em;
+  padding:13px 22px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;
+  background:linear-gradient(150deg,#C8873B,#9B6524);color:#FFFFFF;transition:transform .12s}
+.btn:active{transform:scale(.97)}
+.btn.alt{background:#F3EDE4;color:var(--cream);border:1px solid var(--line)}
+.btn.go{background:linear-gradient(150deg,#C8873B,#9B6524);color:#FFFFFF}
+.btn.sm{padding:10px 16px;font-size:12px}
+h1{font-size:clamp(38px,7.4vw,74px);line-height:1.02;margin:0 0 18px;letter-spacing:-.02em;
+  font-weight:900}
+h1 em{font-style:normal;color:var(--gold)}
+h2{font-size:clamp(24px,3.6vw,34px);margin:0 0 14px;letter-spacing:-.01em;font-weight:800}
+h3{font-size:15px;letter-spacing:.14em;color:var(--gold);margin:34px 0 10px;font-weight:800;
+  text-transform:uppercase}
+p{color:#4A505C;margin:0 0 16px;font-size:16px}
+.lead{font-size:clamp(17px,2.2vw,21px);color:#4A505C;max-width:640px}
+.fine{font-size:13px;color:var(--dim)}
+section{padding:78px 0;border-top:1px solid #E2D9CB}
+section:first-of-type{border-top:none}
+.hero{position:relative;overflow:hidden;padding:78px 0 64px}
+.hero::before{content:"";position:absolute;left:50%;top:-40%;width:120%;height:130%;
+  transform:translateX(-50%);pointer-events:none;
+  background:radial-gradient(ellipse at 50% 40%,rgba(32,96,74,.55),rgba(15,51,37,.22) 45%,transparent 70%)}
+.hero .wrap{position:relative}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin:30px 0 16px}
+.badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.badge{display:flex;align-items:center;gap:8px;background:#FFFFFF;border:1px solid var(--line);
+  border-radius:11px;padding:9px 14px;font-size:11.5px;color:var(--dim);letter-spacing:.05em}
+.badge b{color:var(--cream);font-size:12.5px;letter-spacing:.06em}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(248px,1fr))}
+.card{background:#FFFFFF;border:1px solid var(--line);border-radius:16px;padding:22px 20px}
+.card .n{display:flex;align-items:center;justify-content:center;width:30px;height:30px;
+  border-radius:50%;background:#F3EDE4;color:var(--gold);font-weight:900;font-size:13px;
+  margin-bottom:12px}
+.card h4{margin:0 0 8px;font-size:16px;letter-spacing:.01em}
+.card p{font-size:14px;margin:0;color:#4A505C}
+.tiles{display:flex;gap:8px;justify-content:center;margin:18px 0;flex-wrap:wrap}
+.tiles i{width:52px;height:60px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-size:25px;font-weight:900;font-style:normal;
+  background:#FFFFFF;border:2px solid #E2D9CB;color:var(--cream)}
+.tiles i.h{background:var(--hit);border-color:var(--hit);color:#FFFFFF}
+.tiles i.n{background:var(--near);border-color:var(--near);color:#FFFFFF}
+.tiles i.m{background:var(--miss);border-color:#D8D0C2;color:#7C8493}
+footer{border-top:1px solid #E2D9CB;padding:44px 0 60px;margin-top:20px}
+footer .cols{display:flex;gap:44px;flex-wrap:wrap;margin-bottom:30px}
+footer .col{min-width:150px}
+footer .col b{display:block;font-size:10.5px;letter-spacing:.18em;color:var(--gold);
+  margin-bottom:12px;font-weight:800}
+footer .col a{display:block;color:var(--dim);text-decoration:none;font-size:13.5px;
+  margin-bottom:9px}
+footer .col a:hover{color:var(--cream)}
+.legal{font-size:15px;color:#4A505C}
+.legal p{font-size:15px;color:#4A505C}
+.legal ul{color:#4A505C;padding-left:22px}
+.legal li{margin-bottom:9px}
+.legal table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+.legal td,.legal th{border-bottom:1px solid #E2D9CB;padding:9px 6px;text-align:left;
+  vertical-align:top;color:#4A505C}
+.legal th{color:var(--gold);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.note{background:#F3EDE4;border:1px solid #C8873B;border-radius:12px;padding:14px 16px;
+  font-size:14px;color:#4A505C;margin:20px 0}
+.note b{color:var(--gold)}
+.upd{font-size:12.5px;color:var(--dim);letter-spacing:.06em;margin-bottom:26px}
+@media(max-width:620px){section{padding:56px 0}.hero{padding:46px 0 40px}}
+</style>
+
+<style>
+/* classic-but-modern: serif display, ochre accent, paper ground.
+   Matches the home page system. */
+@import url('');
+h1,h2,h3,h4,.logo{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif !important;
+  font-weight:600 !important;letter-spacing:-.012em !important;text-transform:none !important}
+h3{font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Inter,Roboto,Helvetica,Arial,sans-serif !important;
+  font-size:12px !important;letter-spacing:.15em !important;text-transform:uppercase !important;font-weight:700 !important}
+body{font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Inter,Roboto,Helvetica,Arial,sans-serif}
+.btn{border:1px solid #1C1F26 !important;background:#1C1F26 !important;color:#FBF8F3 !important;
+  font-weight:600 !important;letter-spacing:0 !important;text-transform:none !important}
+.btn:hover{background:#9B6524 !important;border-color:#9B6524 !important;color:#fff !important}
+.btn.alt{background:transparent !important;color:#1C1F26 !important;border-color:#E2D9CB !important}
+.btn.go{background:#C8873B !important;border-color:#C8873B !important;color:#fff !important}
+.card,.badge{box-shadow:0 1px 2px rgba(28,31,38,.05),0 10px 30px rgba(28,31,38,.06)}
+nav{background:rgba(251,248,243,.9) !important}
+@media (prefers-color-scheme:dark){
+  body{background:#14161B !important;color:#F0EBE3 !important}
+  nav{background:rgba(20,22,27,.9) !important;border-bottom-color:#2E333D !important}
+  .card,.badge,.demo,.tiles i{background:#1F232B !important;border-color:#2E333D !important;color:#F0EBE3 !important}
+  .note{background:#1B1E25 !important;border-color:#C8873B !important}
+  p,.lead,.legal,.legal p,.legal td,.legal th,.legal ul,.legal li{color:#A8B0BD !important}
+  .fine,.upd{color:#78808E !important}
+  a{color:#E0A45C !important}
+  footer,section{border-color:#2E333D !important}
+  footer .col a{color:#A8B0BD !important}
+  .btn{background:#F0EBE3 !important;border-color:#F0EBE3 !important;color:#14161B !important}
+  .btn.alt{background:transparent !important;color:#F0EBE3 !important;border-color:#2E333D !important}
+  .btn.go{background:#E0A45C !important;border-color:#E0A45C !important;color:#14161B !important}
+  .tiles i.h{background:#6FA37E !important;border-color:#6FA37E !important;color:#fff !important}
+  .tiles i.n{background:#D2A75C !important;border-color:#D2A75C !important;color:#14161B !important}
+  .tiles i.m{background:#333944 !important;border-color:#333944 !important;color:#78808E !important}
+}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="logo" href="/"><img src="/icons/icon-192.png" alt=""><b>BLUFF</b></a>
+  <div class="sp"></div>
+  <a class="nl" href="/#how">How it works</a>
+  <a class="nl" href="/support">Support</a>
+  <a class="btn sm" href="/play/">PLAY FREE</a>
+</div></nav>
+<section><div class="wrap narrow legal">
+
+<h1 style="font-size:clamp(30px,5vw,46px)">House rules</h1>
+<div class="upd">The BLUFF Daily &middot; last updated 8 August 2026</div>
+
+<div class="note"><b>There is no money in BLUFF.</b> Nothing is for sale, nothing pays out, and
+stars never leave the game. What follows is how the daily works and what is expected of you at the
+table.</div>
+
+<h3>1. The daily</h3>
+<p>Every player in the world is dealt the <b>identical six hands</b> each day &mdash; the same
+words, the same clues, the same prices. Hands are four, five or six letters. A daily runs until
+midnight UTC; standings close at 23:59:59 UTC and six new hands are dealt for the new day. It is free, it takes about five minutes, and it costs no stars &mdash; there is nothing you could buy that would move you up its board.</p>
+
+<h3>2. What the board ranks</h3>
+<p>The board ranks decisions. It scores what you cracked, what you held as setter, and which calls
+you were right to refuse. Everyone faced the same six problems in the same order, so a standing is
+a comparison of choices and nothing else.</p>
+
+<h3>3. Stars</h3>
+<table>
+<tr><th>Place</th><th>Stars</th><th>Frequency</th></tr>
+<tr><td>First on the daily board</td><td>3,000 stars</td><td>Daily</td></tr>
+<tr><td>Second</td><td>1,500 stars</td><td>Daily</td></tr>
+<tr><td>Third</td><td>750 stars</td><td>Daily</td></tr>
+</table>
+<p>Stars are a score. They buy cosmetic looks &mdash; felts, tiles, card backs &mdash; and nothing
+else. They cannot be bought with money, cannot be cashed out, cannot be traded, and cannot improve
+a placing on any board. We may adjust a balance to correct a bug or to reverse abuse.</p>
+
+<h3>4. Power-ups</h3>
+<p>Power-ups are earned in play. They are never sold, so nobody arrives at a table holding more
+than you could have earned yourself.</p>
+
+<h3>5. One run a day</h3>
+<p>One run per device per day, and <b>the first run is the one that stands</b>. Finish it or bust
+it &mdash; either way, that was your day. Reinstalling, clearing storage or opening a second
+browser does not buy a second attempt at the board.</p>
+
+<h3>6. The score comes out of the play</h3>
+<p>A finished run is re-scored on the server from the decisions that produced it. Nothing accepts a
+score as an input: the only thing your device can send is the play, and the number comes back out
+of it. A run that does not re-score to what it claims does not stand.</p>
+
+<h3>7. Handles</h3>
+<p>Your handle appears on a public board, so choose one you would be happy to see there. Handles
+that impersonate someone, advertise, or are abusive are refused, and any that get through are
+removed.</p>
+
+<h3>8. Automated play</h3>
+<p>Bots, scripts, solvers driving the board, and any tampering with the daily deal void the run.
+Do it repeatedly and you lose access to the board.</p>
+
+<h3>9. When a day goes wrong</h3>
+<p>If a technical fault or tampering compromises a day, we may void that day's standings, and we
+will say so rather than quietly restate the numbers. If something looks wrong to you, write to
+<a href="mailto:support@webluff.com">support@webluff.com</a> with your handle and the date.</p>
+
+<h3>10. Who runs this</h3>
+<p>5arz Services LLC &middot;
+<a href="mailto:support@webluff.com">support@webluff.com</a>. Everything sent there is read.</p>
+
+</div></section>
+<footer><div class="wrap">
+  <div class="cols">
+    <div class="col"><b>PLAY</b>
+      <a href="/play/">In your browser</a>
+      <a href="/#daily">Today&rsquo;s daily</a>
+      <a href="/#how">How a hand works</a>
+    </div>
+    <div class="col"><b>LEGAL</b>
+      <a href="/rules">House rules</a>
+      <a href="/privacy">Privacy policy</a>
+      <a href="/terms">Terms of use</a>
+    </div>
+    <div class="col"><b>HELP</b>
+      <a href="/support">Support</a>
+      <a href="mailto:support@webluff.com">support@webluff.com</a>
+    </div>
+  </div>
+  <p class="fine">&copy; 2026 5arz Services LLC BLUFF is a free word game.
+  Stars are a score: you can buy them, you can win them, and they never leave the game &mdash; nothing here pays out.</p>
+</div></footer>
+</body>
+</html>

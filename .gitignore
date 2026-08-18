@@ -1,0 +1,33 @@
+# ── credentials ──
+# A .p8 is an App Store Connect private key: whoever holds it can act on the
+# developer account, and Apple only issues it once. It belongs on the machine
+# and in a password manager, never in the tree. These patterns are a backstop
+# for a stray `git add -A`, not the actual protection.
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+AuthKey_*
+.appstoreconnect/
+private_keys/
+.env
+.env.*
+!.env.example
+
+# ── build output ──
+node_modules/
+ios/
+android/
+*.ipa
+*.xcarchive
+*.dSYM
+
+# ── scratch ──
+*.log
+*.done
+chunks/
+__pycache__/
+.DS_Store
+
+# local secrets — never commit
+.secrets/

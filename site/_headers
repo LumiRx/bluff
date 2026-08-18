@@ -1,0 +1,27 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+# connect-src MUST list https://api.webluff.com explicitly.
+# The game calls the API by absolute origin (the packaged iOS/Android builds have
+# no origin of their own to be relative to), so 'self' alone silently blocks every
+# request the web build makes — daily, board, sign-in, purchases. Native builds are
+# unaffected, which is why this is easy to miss. Do not narrow this back to 'self'.
+/play/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.webluff.com; media-src 'self' data:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'
+
+/play/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+  Service-Worker-Allowed: /play/
+
+/play/index.html
+  Cache-Control: no-cache
+
+/icons/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/og.png
+  Cache-Control: public, max-age=604800

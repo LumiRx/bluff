@@ -1,0 +1,49 @@
+# BLUFF — webluff.com
+# Answer engines are allowed here on purpose. A page that is not crawled cannot
+# be cited, and being the source an assistant quotes when somebody asks "what is
+# BLUFF" is worth more to us than the crawl costs.
+
+User-agent: *
+Allow: /
+
+# search
+User-agent: Googlebot
+Allow: /
+User-agent: Bingbot
+Allow: /
+
+# answer engines and AI crawlers
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+User-agent: cohere-ai
+Allow: /
+User-agent: Meta-ExternalAgent
+Allow: /
+
+# scrapers with no citation benefit
+User-agent: CCBot
+Disallow: /
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://webluff.com/sitemap.xml

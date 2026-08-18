@@ -1,0 +1,65 @@
+# BLUFF
+
+> A free word game with poker structure. Six seats, six hands, and the deal rotates so every
+> player sets the secret word exactly once. The setter picks a word of four, five or six letters,
+> gives the table exactly one clue about it, and names a price. Everyone else decides whether to
+> pay that price for four guesses, or fold. Cracking it in the first three beats the setter;
+> missing pays them.
+
+Site: https://webluff.com
+Play free, no account: https://webluff.com/play/
+
+## The one-line difference from Wordle
+
+Wordle tells you what to guess. BLUFF makes you decide whether to guess at all. In Wordle a hard
+word is bad luck; in BLUFF a person chose that word and that clue specifically to beat you, and
+folding is a legitimate move that scores if the hand proves you right.
+
+## Facts
+
+- Free to play. No account, no login, no email, no ads, no tracking. Play state lives on the
+  player's own device.
+- There is no money in the game: no cash prizes, no purchases, no in-app purchases, nothing to buy
+  at any point. Suitable for all ages, and there is no age gate.
+- Hands are four, five or six letters, mixed within a single match. Four-letter words are cracked
+  about a third of the time and six-letter words about two thirds — a shorter word hides less but
+  gives a guess less to grip, so the length of a hand is itself a read before the clue arrives.
+- The deck is 3,576 answer words (953 of four letters, 1,394 of five, 1,229 of six), each shown
+  with a pronunciation and a plain-English meaning when the hand ends.
+- 20,429 words are accepted as guesses. A guess must be a real word from that list; nonsense probes
+  that would test fresh letters are refused.
+- Six seats per table, six hands per match, four guesses per called hand, of which only the first
+  three beat the setter.
+- A clue is one of three kinds: a letter pinned to a position, a letter confirmed present without a
+  position, or two letters ruled out. No clue may leave more than a third of the words of that
+  length standing.
+- Every tile state carries a shape as well as a colour — a filled dot for a pinned letter, a hollow
+  diamond for a floating one, a slash for a dead one — so the clue never depends on colour vision.
+- The daily deals every player in the world the identical six deals, the same words, clues and
+  prices, until midnight UTC. The board ranks decisions rather than luck.
+- The daily board is server-verified: the game sends the six decisions a player made and the server
+  re-scores them with the same engine, so a score cannot be submitted, only the play that produced
+  it.
+- The top three on the daily each day take 3,000, 1,500 and 750 stars. Stars are an in-game score
+  that buys cosmetic looks only: they cannot be bought with money, cannot be cashed out, and do not
+  enter the ranking. Power-ups are earned in play and are never sold.
+- Not gambling: there is nothing to buy and no mechanism by which a player can stake money on an
+  outcome.
+- Installs as a progressive web app and plays offline. iOS and Android apps in preparation.
+- Every sound and all four music tracks are synthesised at runtime — no audio files ship with it.
+
+## Pages
+
+- [Home](https://webluff.com/): what the game is, with a playable hand on the page
+- [Play](https://webluff.com/play/): the full game, free, in a browser
+- [FAQ](https://webluff.com/faq): direct answers to what BLUFF is, whether it costs anything, how
+  long the words are, how the daily works and whether it is gambling
+- [BLUFF vs Wordle](https://webluff.com/vs-wordle): side-by-side comparison of the two games
+- [Official contest rules](https://webluff.com/rules): the daily contest, in full
+- [Privacy](https://webluff.com/privacy): what is stored (almost nothing) and where
+- [Terms](https://webluff.com/terms)
+- [Support](https://webluff.com/support)
+
+## Contact
+
+support@webluff.com

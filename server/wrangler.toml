@@ -1,0 +1,33 @@
+name = "bluff-daily"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+
+# The game asks for https://api.webluff.com by name. It has to be an absolute
+# origin rather than a path on the site, because the packaged iOS and Android
+# builds have no origin of their own to be relative to.
+[[routes]]
+pattern = "api.webluff.com"
+custom_domain = true
+
+[[durable_objects.bindings]]
+name = "BOARD"
+class_name = "DailyBoard"
+
+# One object for the whole game: handles are unique across all of it, and the
+# write rate is one row per player, ever.
+[[durable_objects.bindings]]
+name = "PLAYERS"
+class_name = "Players"
+
+# SQLite-backed, so a day's board is a table rather than a blob to rewrite
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["DailyBoard"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["Players"]
+
+[observability]
+enabled = true

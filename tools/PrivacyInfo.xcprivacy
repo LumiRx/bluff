@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  The app's privacy manifest. Apple reads this out of the bundle and cross-checks
+  it against the App Privacy answers typed into App Store Connect; a disagreement
+  between the two is a rejection, so every entry here has a twin in
+  STORE-FIELDS.md and they have to be changed together.
+
+  Two separate things live in this file and they fail differently:
+
+    · NSPrivacyCollectedDataTypes must match the App Store Connect answers. Get
+      it wrong and a human notices.
+    · NSPrivacyAccessedAPITypes must cover every "required reason" API anything
+      in the binary calls. Get it wrong and a machine notices — you get an
+      ITMS-91053 email within minutes of the upload, naming the exact API and
+      category it found. That email is the fix list; it is not a rejection.
+
+  NSPrivacyTrackingDomains has a consequence worth knowing before you ship it: a
+  player who declines the tracking prompt does not merely get worse ads, the
+  operating system blocks the app's connections to every domain listed here. That
+  is the intended behaviour and it is why the list is only ad domains — nothing
+  the game needs to function is in it.
+-->
+<plist version="1.0">
+<dict>
+  <key>NSPrivacyTracking</key>
+  <true/>
+
+  <key>NSPrivacyTrackingDomains</key>
+  <array>
+    <string>googleadservices.com</string>
+    <string>googlesyndication.com</string>
+    <string>doubleclick.net</string>
+    <string>googletagservices.com</string>
+    <string>app-measurement.com</string>
+    <string>adservice.google.com</string>
+  </array>
+
+  <key>NSPrivacyCollectedDataTypes</key>
+  <array>
+    <!-- the phone number. Never stored as itself: what is written down is an
+         HMAC of it under a server secret, plus the last four digits so a screen
+         can say ••••0142. Declared anyway, because it is collected in transit
+         and Apple asks about collection, not storage. -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypePhoneNumber</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key><true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key><false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array><string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string></array>
+    </dict>
+
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeUserID</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key><true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key><false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array><string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string></array>
+    </dict>
+
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypePurchaseHistory</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key><true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key><false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array><string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string></array>
+    </dict>
+
+    <!-- the six daily decisions, so the server can re-score them rather than
+         take a score from a client -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeOtherUsageData</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key><true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key><false/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array><string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string></array>
+    </dict>
+
+    <!-- the advertising identifier. This is the only entry with Tracking true,
+         and it is the reason the app asks for permission at all. -->
+    <dict>
+      <key>NSPrivacyCollectedDataType</key>
+      <string>NSPrivacyCollectedDataTypeDeviceID</string>
+      <key>NSPrivacyCollectedDataTypeLinked</key><true/>
+      <key>NSPrivacyCollectedDataTypeTracking</key><true/>
+      <key>NSPrivacyCollectedDataTypePurposes</key>
+      <array><string>NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising</string></array>
+    </dict>
+  </array>
+
+  <key>NSPrivacyAccessedAPITypes</key>
+  <array>
+    <!-- Capacitor's runtime reads and writes UserDefaults for its own bridge
+         configuration. CA92.1 is "access info from the app itself", which is
+         exactly what that is. -->
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array><string>CA92.1</string></array>
+    </dict>
+    <!-- WKWebView's cache and the bundled web assets. C617.1 is "timestamps for
+         files inside the app's own container". -->
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array><string>C617.1</string></array>
+    </dict>
+    <!-- E174.1 is "measuring elapsed time inside the app", which is the hand
+         clock and the four-hour rebuy timer. -->
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array><string>35F9.1</string></array>
+    </dict>
+    <!-- 85F4.1 is "display to the person on screen", which is the star balance
+         and the storage the deck is cached in. -->
+    <dict>
+      <key>NSPrivacyAccessedAPIType</key>
+      <string>NSPrivacyAccessedAPICategoryDiskSpace</string>
+      <key>NSPrivacyAccessedAPITypeReasons</key>
+      <array><string>85F4.1</string></array>
+    </dict>
+  </array>
+</dict>
+</plist>

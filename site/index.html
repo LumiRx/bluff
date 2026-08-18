@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLUFF — pick a word, bet they cannot get it</title>
+<meta name="description" content="Wordle tells you what to guess. BLUFF makes you decide whether to guess at all. Set a secret word, give the table one clue, name your price. Free to play, no account.">
+<link rel="canonical" href="https://webluff.com/">
+<meta name="theme-color" content="#FBF8F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14161B" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BLUFF">
+<meta property="og:title" content="BLUFF — pick a word, bet they cannot get it">
+<meta property="og:description" content="Wordle tells you what to guess. BLUFF makes you decide whether to guess at all. Set a secret word, give the table one clue, name your price. Free to play, no account.">
+<meta property="og:url" content="https://webluff.com/">
+<meta property="og:image" content="https://webluff.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BLUFF — pick a word, bet they cannot get it">
+<meta name="twitter:description" content="Wordle tells you what to guess. BLUFF makes you decide whether to guess at all. Free to play, no account.">
+<meta name="twitter:image" content="https://webluff.com/og.png">
+<link rel="icon" href="/icons/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="/icons/icon-180.png">
+<style>
+/* ───────────────────────────────────────────────────────────────
+   BLUFF — classic but modern.
+   Classic: paper ground, ink type, a serif display with newspaper-
+   puzzle heritage, generous margins, quiet confidence.
+   Modern: geometric sans UI, soft tiles, restrained motion, dark
+   mode, mobile-first, thumb-reachable.
+   Deliberately NOT casino: no felt green, no casino gold, no chips,
+   no card suits. The fold stays — the decision is the product.
+   ─────────────────────────────────────────────────────────────── */
+:root{
+  --paper:#FBF8F3; --paper-2:#F3EDE4; --tile:#FFFFFF;
+  --ink:#1C1F26; --ink-soft:#4A505C; --ink-faint:#7C8493;
+  --rule:#E2D9CB;
+  --accent:#C8873B; --accent-deep:#9B6524;   /* ochre — warm, classic, not casino gold */
+  --cool:#2F4858;
+  --hit:#3F7A52; --near:#B5832F; --miss:#D8D0C2;
+  --shadow:0 1px 2px rgba(28,31,38,.05),0 10px 30px rgba(28,31,38,.06);
+  --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman',serif;
+  --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Inter,Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#14161B; --paper-2:#1B1E25; --tile:#1F232B;
+    --ink:#F0EBE3; --ink-soft:#A8B0BD; --ink-faint:#78808E;
+    --rule:#2E333D;
+    --accent:#E0A45C; --accent-deep:#C8873B; --cool:#8FB3C7;
+    --hit:#6FA37E; --near:#D2A75C; --miss:#333944;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-deep)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+.narrow{max-width:720px}
+
+/* ── nav ── */
+nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--paper) 88%,transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--rule)}
+nav .wrap{display:flex;align-items:center;gap:14px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;
+  font-family:var(--serif);font-weight:700;letter-spacing:.2em;font-size:19px}
+.logo img{width:28px;height:28px;border-radius:8px}
+.logo b{font-weight:700}
+.logo b i{font-style:normal;color:var(--accent)}
+nav .sp{flex:1}
+nav a.nl{color:var(--ink-soft);text-decoration:none;font-size:13.5px;font-weight:500}
+nav a.nl:hover{color:var(--ink)}
+
+/* ── buttons ── */
+.btn{display:inline-block;text-decoration:none;font-weight:600;font-size:14.5px;
+  padding:14px 24px;border-radius:12px;border:1px solid var(--ink);cursor:pointer;
+  font-family:inherit;background:var(--ink);color:var(--paper);
+  transition:background .15s ease,transform .12s ease}
+.btn:hover{background:var(--accent-deep);border-color:var(--accent-deep);color:#fff}
+.btn:active{transform:translateY(1px)}
+.btn.alt{background:transparent;color:var(--ink);border-color:var(--rule)}
+.btn.alt:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink-faint)}
+.btn.go{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.go:hover{background:var(--accent-deep);border-color:var(--accent-deep)}
+.btn.sm{padding:9px 16px;font-size:13px}
+
+/* ── type ── */
+h1,h2,h4,.serif{font-family:var(--serif);font-weight:600;letter-spacing:-.012em}
+h1{font-size:clamp(31px,5.1vw,54px);line-height:1.1;margin:0 0 20px}
+h1 .q{color:var(--ink-soft);font-weight:400}
+h2{font-size:clamp(25px,3.5vw,35px);margin:0 0 14px;line-height:1.15}
+h3{font-family:var(--sans);font-size:12px;letter-spacing:.15em;color:var(--accent-deep);
+  margin:36px 0 10px;font-weight:700;text-transform:uppercase}
+p{color:var(--ink-soft);margin:0 0 16px;font-size:16.5px}
+.lead{font-size:clamp(17px,2.1vw,20px);color:var(--ink-soft);max-width:640px}
+.lead b{color:var(--ink);font-weight:600}
+.fine{font-size:13.5px;color:var(--ink-faint)}
+.eyebrow{display:inline-block;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent-deep);border:1px solid var(--rule);border-radius:999px;
+  padding:6px 14px;margin-bottom:22px;background:var(--paper-2);font-weight:600}
+section{padding:78px 0;border-top:1px solid var(--rule)}
+section:first-of-type{border-top:none}
+
+/* ── hero ── */
+.hero{padding:66px 0 60px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin:30px 0 18px}
+.badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.badge{display:flex;align-items:center;gap:8px;background:var(--tile);border:1px solid var(--rule);
+  border-radius:11px;padding:9px 14px;font-size:12.5px;color:var(--ink-soft);box-shadow:var(--shadow)}
+.badge b{color:var(--ink);font-size:12.5px;font-weight:700}
+
+/* ── cards ── */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(248px,1fr))}
+.card{background:var(--tile);border:1px solid var(--rule);border-radius:16px;padding:24px 22px;
+  box-shadow:var(--shadow)}
+.card .n{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;
+  background:var(--paper-2);border:1px solid var(--rule);color:var(--accent-deep);
+  font-family:var(--serif);font-weight:700;font-size:15px;margin-bottom:14px}
+.card h4{margin:0 0 8px;font-size:18px}
+.card p{font-size:15px;margin:0}
+
+/* ── tiles. Every state carries a SHAPE as well as a colour, so the board
+      never depends on colour vision — the copy promises this, so the CSS
+      has to keep promising it. ── */
+.tiles{display:flex;gap:8px;justify-content:center;margin:18px 0;flex-wrap:wrap}
+.tiles i{position:relative;width:52px;height:60px;border-radius:11px;display:flex;
+  align-items:center;justify-content:center;font-size:24px;font-weight:700;font-style:normal;
+  font-family:var(--serif);background:var(--tile);border:1px solid var(--rule);color:var(--ink);
+  box-shadow:var(--shadow)}
+.tiles i.h{background:var(--hit);border-color:var(--hit);color:#fff}
+.tiles i.n{background:var(--near);border-color:var(--near);color:#fff}
+.tiles i.m{background:var(--miss);border-color:var(--miss);color:var(--ink-faint)}
+.tiles i.h::after,.tiles i.n::after,.tiles i.m::after{
+  position:absolute;bottom:3px;right:6px;font-size:10px;font-family:var(--sans);
+  font-weight:700;opacity:.85;line-height:1}
+.tiles i.h::after{content:"●"}   /* exact  */
+.tiles i.n::after{content:"◆"}   /* present */
+.tiles i.m::after{content:"×"}   /* absent  */
+
+/* ── notes & footer ── */
+.note{background:var(--paper-2);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;
+  padding:16px 20px;font-size:15px;color:var(--ink-soft);margin:20px 0}
+.note b{color:var(--ink)}
+footer{border-top:1px solid var(--rule);padding:46px 0 60px;margin-top:20px}
+footer .cols{display:flex;gap:44px;flex-wrap:wrap;margin-bottom:30px}
+footer .col{min-width:150px}
+footer .col b{display:block;font-size:11px;letter-spacing:.16em;color:var(--accent-deep);
+  margin-bottom:12px;font-weight:700}
+footer .col a{display:block;color:var(--ink-soft);text-decoration:none;font-size:14px;
+  margin-bottom:9px}
+footer .col a:hover{color:var(--ink)}
+.legal{font-size:16px;color:var(--ink-soft)}
+.legal p{font-size:16px;color:var(--ink-soft)}
+.legal ul{color:var(--ink-soft);padding-left:22px}
+.legal li{margin-bottom:9px}
+.legal table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14.5px}
+.legal td,.legal th{border-bottom:1px solid var(--rule);padding:10px 6px;text-align:left;
+  vertical-align:top;color:var(--ink-soft)}
+.legal th{color:var(--accent-deep);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.upd{font-size:13px;color:var(--ink-faint);letter-spacing:.04em;margin-bottom:26px}
+
+@media(max-width:760px){nav a.nl{display:none}}
+@media(max-width:620px){section{padding:56px 0}.hero{padding:36px 0 34px}}
+
+/* the demo is the thing that sells this, so on anything wider than a phone it
+   goes beside the headline rather than a screen further down */
+.herogrid{display:grid;gap:38px;align-items:center;grid-template-columns:1fr}
+@media(min-width:940px){
+  .herogrid{grid-template-columns:1.05fr .95fr;gap:52px}
+  .hero{padding:60px 0 72px}
+}
+.demo .st a.keep{display:inline-block;margin-top:6px;font-weight:600;color:var(--accent-deep)}
+.demolab{font-size:11px;letter-spacing:.18em;color:var(--accent-deep);font-weight:700;
+  text-align:center;margin-bottom:12px;text-transform:uppercase}
+</style>
+<style>
+.demo{background:var(--tile);border:1px solid var(--rule);border-radius:20px;
+  padding:26px 20px 22px;max-width:460px;margin:0 auto;box-shadow:var(--shadow)}
+.demo .clue{background:var(--paper-2);border:1px solid var(--rule);border-radius:12px;
+  padding:12px 14px;font-size:15px;color:var(--ink-soft);text-align:center;margin-bottom:6px}
+.demo .clue b{color:var(--ink);font-weight:700}
+.demo .st{text-align:center;font-size:14px;color:var(--ink-faint);min-height:44px;margin:12px 0 4px}
+.demo .st b{font-family:var(--serif);font-size:16px}
+.krow{display:flex;gap:5px;justify-content:center;margin-bottom:6px}
+.k{flex:1;max-width:38px;height:46px;border-radius:8px;background:var(--paper-2);
+  border:1px solid var(--rule);color:var(--ink);font-family:inherit;font-weight:600;
+  font-size:14px;cursor:pointer;transition:background .12s}
+.k.wide{max-width:58px;font-size:10px;letter-spacing:.03em}
+.k:hover{background:var(--rule)}
+.k:active{background:var(--accent);border-color:var(--accent);color:#fff}
+.demo .tiles i{width:46px;height:52px;font-size:21px}
+</style>
+
+<script>
+/* A single hand, playable in the page. The fastest way to explain this game is
+   to let somebody lose one clue and figure the rest out. */
+const WORDS=["SLIDE","GRAVE","PLANK","BRISK","CHART","STORM","FLINT","SHARD","CRANE","PRIDE",
+             "MOUNT","TRACE","GLINT","SPARK","BLAZE","CHASE","DRIFT","FROST","GHOST","QUILT"];
+let W="", POS=1, TRIES=[], CUR="", DONE=false;
+/* Deal a fresh hand. A visitor who cracks it — or busts out — should be able to
+   play another rather than stare at a keyboard that has stopped responding. */
+function deal(word){
+  const pool=WORDS.filter(x=>x!==W);
+  W=word||pool[Math.floor(Math.random()*pool.length)];
+  POS=1;TRIES=[];CUR="";DONE=false;
+  if(document.getElementById("dboard"))draw();
+}
+function ev(g,w){const r=Array(5).fill("m"),A=w.split(""),B=g.split("");
+  for(let i=0;i<5;i++)if(B[i]===A[i]){r[i]="h";A[i]=null;B[i]=null;}
+  for(let i=0;i<5;i++){if(!B[i])continue;const j=A.indexOf(B[i]);if(j>-1){r[i]="n";A[j]=null;}}
+  return r;}
+function draw(){
+  const b=document.getElementById("dboard");let h="";
+  for(let r=0;r<3;r++){
+    const g=TRIES[r]||(r===TRIES.length?CUR.padEnd(5," "):"     ");
+    const m=TRIES[r]?ev(TRIES[r],W):null;
+    h+="<div class='tiles' style='margin:6px 0'>";
+    for(let i=0;i<5;i++)
+      h+="<i class='"+(m?m[i]:"")+"'>"+(g[i]===" "?"":g[i])+"</i>";
+    h+="</div>";
+  }
+  b.innerHTML=h;
+  document.getElementById("dclue").innerHTML=
+    "The <b>"+["1st","2nd","3rd","4th","5th"][POS]+"</b> letter is <b>"+W[POS]+"</b>. That is the "
+    +"only clue you get.";
+  const s=document.getElementById("dstate");
+  if(DONE===true)s.innerHTML="<b>Cracked it.</b> At a real table the setter "
+    +"just paid you. <a href='/play/' data-play>Play a full six-handed match &rsaquo;</a> "
+    +"<a href='#' id='dagain'>Deal another</a><br>"
+    +"<a href='#get' class='keep'>Keep this streak &rsaquo;</a>";
+  else if(DONE==="out")s.innerHTML="<b>It was "+W+".</b> At a real table you "
+    +"just paid the setter &mdash; which is why folding is a move. "
+    +"<a href='/play/' data-play>Play a full match &rsaquo;</a> "
+    +"<a href='#' id='dagain'>Deal another</a><br>"
+    +"<a href='#get' class='keep'>Get tomorrow's hand &rsaquo;</a>";
+  else s.innerHTML="Three guesses. Type a five-letter word.";
+}
+function key(k){
+  if(DONE)return;
+  if(k==="<"){CUR=CUR.slice(0,-1);return draw();}
+  if(k==="="){
+    if(CUR.length<5)return;
+    TRIES.push(CUR);
+    if(CUR===W)DONE=true; else if(TRIES.length>=3)DONE="out";
+    CUR="";return draw();
+  }
+  if(CUR.length<5)CUR+=k;
+  draw();
+}
+addEventListener("keydown",e=>{
+  if(e.key==="Enter")key("=");
+  else if(e.key==="Backspace")key("<");
+  else if(/^[a-zA-Z]$/.test(e.key))key(e.key.toUpperCase());
+});
+document.addEventListener("DOMContentLoaded",()=>{
+  const kb=document.getElementById("dkeys");
+  ["QWERTYUIOP","ASDFGHJKL","=ZXCVBNM<"].forEach(row=>{
+    const d=document.createElement("div");d.className="krow";
+    [...row].forEach(ch=>{
+      const b=document.createElement("button");
+      b.className="k"+(ch==="="||ch==="<"?" wide":"");
+      b.textContent=ch==="="?"ENTER":ch==="<"?"⌫":ch;
+      b.onclick=()=>key(ch);d.appendChild(b);
+    });
+    kb.appendChild(d);
+  });
+  // delegated, because the state line is rewritten on every draw
+  document.getElementById("dstate").addEventListener("click",e=>{
+    if(e.target.id==="dagain"){e.preventDefault();deal();}
+  });
+  deal();
+});
+</script>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"BLUFF","alternateName":"BLUFF: Word Poker","url":"https://webluff.com/","description":"A free word game with poker structure. Six seats, six hands, the deal rotates. You pick a secret word of four, five or six letters, give the table one clue, name your price, and bet nobody cracks it. Nothing pays out: stars are a score, they never leave the game, and the daily is free forever. The daily pays stars, an in-game score that unlocks cosmetic looks only.","image":"https://webluff.com/og.png","applicationCategory":"GameApplication","genre":["Word game","Puzzle","Strategy"],"gamePlatform":["Web browser","iOS","Android"],"playMode":["SinglePlayer","MultiPlayer"],"numberOfPlayers":{"@type":"QuantitativeValue","value":6},"operatingSystem":"Any browser","inLanguage":"en","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD","availability":"https://schema.org/InStock"},"author":{"@type":"Organization","name":"5arz Services LLC"},"publisher":{"@type":"Organization","name":"5arz Services LLC"},"potentialAction":{"@type":"PlayAction","target":"https://webluff.com/play/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"BLUFF","url":"https://webluff.com/","inLanguage":"en","publisher":{"@type":"Organization","name":"5arz Services LLC","url":"https://webluff.com/","logo":"https://webluff.com/icons/icon-512.png"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"HowTo","name":"How to play a hand of BLUFF","description":"Six seats, six hands, the deal rotates so everybody sets the word exactly once.","totalTime":"PT5M","step":[{"@type":"HowToStep","position":1,"name":"Choose the word","text":"On your deal you are shown five cards of four, five or six letters, each with the measured odds a table cracks it in three guesses. A soft word is safe and cheap. A mean one scares everybody off and wins you nothing."},{"@type":"HowToStep","position":2,"name":"Give one clue","text":"Pin a letter to a position, confirm a letter is present, or rule two letters out. No clue may leave more than 250 words possible."},{"@type":"HowToStep","position":3,"name":"Name your price","text":"A generous clue draws callers and lowers what you can charge. The edge is in a word that looks beatable and is not."},{"@type":"HowToStep","position":4,"name":"They call or they fold","text":"Callers get four guesses but only beat you in the first three. Crack it and you pay them. Miss and they pay you. Fold and it costs the ante."}]}</script>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="logo" href="/"><img src="/icons/icon-192.png" alt=""><b>BL<i>U</i>FF</b></a>
+  <div class="sp"></div>
+  <a class="nl" href="/#how">How it works</a>
+  <a class="nl" href="/vs-wordle">vs Wordle</a>
+  <a class="nl" href="/faq">FAQ</a>
+  <a class="btn sm" href="/play/">Play free</a>
+</div></nav>
+
+<div class="hero"><div class="wrap"><div class="herogrid">
+  <div>
+    <span class="eyebrow">The new learning battle game</span>
+    <h1><span class="q">Wordle tells you what to guess.</span><br>BLUFF makes you decide whether to guess at all.</h1>
+    <p class="lead"><b>Pick a word. Bet they cannot get it.</b> Six seats, six hands, the deal
+    rotates &mdash; and on your hand you choose the secret word, give the table one clue, and name
+    your price.</p>
+    <div class="cta">
+      <a class="btn go" href="/play/">Play free in your browser</a>
+      <a class="btn alt" href="#daily">Same six hands, worldwide</a>
+    </div>
+    <div class="badges">
+      <div class="badge"><b>Free daily</b> forever, no stake</div>
+      <div class="badge"><b>No account</b> nothing to sign up for</div>
+      <div class="badge"><b>All ages</b> no age gate</div>
+      <div class="badge"><b>No banners</b> one ad, only if you ask</div>
+    </div>
+  </div>
+  <div>
+    <div class="demolab">Try one hand &middot; no sign-up</div>
+    <div class="demo">
+      <div class="clue" id="dclue"></div>
+      <div id="dboard"></div>
+      <div class="st" id="dstate"></div>
+      <div id="dkeys"></div>
+    </div>
+  </div>
+</div></div></div>
+
+<section id="how"><div class="wrap">
+  <h2>How a hand works</h2>
+  <p class="lead" style="margin-bottom:30px">The button moves one seat every hand, so everybody
+  sets the word exactly once.</p>
+  <div class="grid">
+    <div class="card"><div class="n">1</div><h4>You choose the word</h4>
+      <p>Five cards of four, five or six letters, each with the measured odds that a table cracks
+      it in three. A soft word is safe and cheap. A mean one scares everybody off and wins you
+      nothing.</p></div>
+    <div class="card"><div class="n">2</div><h4>You give one clue</h4>
+      <p>A letter pinned to a position, or a letter ruled out. Generous clues draw callers and
+      lower your price. The edge is in a word that <em>looks</em> beatable and is not.</p></div>
+    <div class="card"><div class="n">3</div><h4>They call or they fold</h4>
+      <p>Callers get four guesses but only beat you in the first three. Crack it and you pay them.
+      Miss and they pay you. Fold and it costs them the ante &mdash; and whatever the table thinks.</p></div>
+  </div>
+  <h3>What that changes</h3>
+  <p>In a normal word game a bad puzzle is bad luck. Here it is a decision you made. The best
+  players are not the ones with the biggest vocabulary &mdash; they are the ones who know when a
+  clue is a trap and walk away from it.</p>
+  <h3>Four, five or six letters</h3>
+  <p>Hand length is mixed inside a single match, and it is the first thing to read. A four-letter
+  word hides less, so there is less for a guess to grip: tables crack them about a third of the
+  time, while six-letter words fall about two thirds of the time. You already know something about
+  the hand before you have seen the clue.</p>
+  <h3>Real words, real meanings</h3>
+  <p>The deck is 3,576 words, each carrying a pronunciation and a plain-English meaning shown when
+  the hand ends, so a word that beat you is a word you keep. Guesses have to be real words too:
+  20,429 are accepted, and nonsense probes are refused.</p>
+  <h3>Readable without colour</h3>
+  <p>Every tile state carries a shape as well as a colour &mdash; a dot for an exact letter, a
+  diamond for one in the wrong place, a cross for one that is not there &mdash; so the clue on the
+  board never depends on colour vision.</p>
+</div></section>
+
+<section id="daily"><div class="wrap">
+  <h2>Everyone in the world plays the same six hands</h2>
+  <p class="lead">Every day, the daily table deals identical cards, clues and prices to every
+  player alive. The board ranks decisions, not luck &mdash; what you cracked, what you held, and
+  what you were right to refuse.</p>
+  <div class="grid" style="margin-top:28px">
+    <div class="card"><h4>3,000 stars &middot; first</h4>
+      <p>Top of the daily board, every day.</p></div>
+    <div class="card"><h4>1,500 stars &middot; second</h4>
+      <p>Standings final at midnight UTC.</p></div>
+    <div class="card"><h4>750 stars &middot; third</h4>
+      <p>Free to enter, once a day.</p></div>
+  </div>
+  <div class="note" style="margin-top:26px"><b>There is no money in BLUFF.</b> Nothing is for sale
+  and nothing pays out. Stars are an in-game score: they cannot be bought, cannot be cashed out,
+  and unlock cosmetic looks and nothing else. The daily is free, once a day, at any age.
+  <a href="/rules">Full rules &rsaquo;</a></div>
+</div></section>
+
+<section id="get"><div class="wrap" style="text-align:center">
+  <h2>Keep your streak</h2>
+  <p class="lead" style="margin:0 auto 26px">One word a day. Leave an email and we will send you
+  tomorrow's hand, keep your streak and record, and tell you when a friend calls you out.
+  No account, and you can play without any of it.</p>
+  <form id="nf" style="display:flex;gap:10px;max-width:440px;margin:0 auto;flex-wrap:wrap">
+    <label for="nemail" style="position:absolute;left:-9999px">Email address</label>
+    <input id="nemail" type="email" required placeholder="you@example.com" autocomplete="email"
+      style="flex:1;min-width:200px;background:var(--tile);border:1px solid var(--rule);
+      color:var(--ink);border-radius:12px;padding:14px;font-family:inherit;font-size:16px">
+    <button class="btn" type="submit">Send me tomorrow's hand</button>
+  </form>
+  <p class="fine" id="nmsg" style="margin-top:14px" role="status" aria-live="polite">One a day, and
+  nothing else. Unsubscribe in a click. <a href="/privacy">What we do with it &rsaquo;</a></p>
+  <div class="cta" style="justify-content:center;margin-top:30px">
+    <a class="btn go" href="/play/">Play free now</a>
+  </div>
+</div></section>
+<script>
+/* Where did this visitor come from? First-party only: a creator code or a
+   campaign tag we put on our own links. Held for the session so the tag
+   survives a click into the game and back. */
+const Q=new URLSearchParams(location.search);
+const SRC={};
+["utm_source","utm_medium","utm_campaign"].forEach(k=>{const v=Q.get(k);if(v)SRC[k]=v;});
+if(Q.get("c"))SRC.c=Q.get("c");
+
+function beacon(e,p){
+  try{ fetch("/api/hit",{method:"POST",headers:{"Content-Type":"application/json"},
+    keepalive:true,body:JSON.stringify(Object.assign({e:e,p:p},SRC))}); }catch(_){}
+}
+beacon("view","home");
+document.addEventListener("click",ev=>{
+  const a=ev.target.closest&&ev.target.closest("a[href^='/play/'],a[data-play]");
+  if(a)beacon("play_click","home");
+});
+
+document.getElementById("nf").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const email=document.getElementById("nemail").value.trim();
+  const msg=document.getElementById("nmsg");
+  msg.textContent="Sending…";
+  try{
+    const r=await fetch("/api/notify",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(Object.assign({email:email},SRC))});
+    const d=await r.json().catch(()=>({}));
+    /* `ok` is true even when the store is unconfigured — the API reports that
+       separately as stored:false. Only claim we kept the address if we did. */
+    if(r.ok&&d.stored){ msg.textContent="You are in. Tomorrow's hand lands in the morning."; }
+    else if(r.ok){ msg.textContent="Nearly there — the list is not switched on yet. Try again shortly."; }
+    else { msg.textContent=(d.error||"That did not go through")+" — or email support@webluff.com."; }
+  }catch(err){ msg.textContent="That did not go through — try support@webluff.com."; }
+});
+</script>
+
+<footer><div class="wrap">
+  <div class="cols">
+    <div class="col"><b>PLAY</b>
+      <a href="/play/">In your browser</a>
+      <a href="/#daily">Today&rsquo;s daily</a>
+      <a href="/#how">How a hand works</a>
+    </div>
+    <div class="col"><b>ABOUT</b>
+      <a href="/faq">Questions</a>
+      <a href="/vs-wordle">BLUFF vs Wordle</a>
+      <a href="/support">Support</a>
+    </div>
+    <div class="col"><b>LEGAL</b>
+      <a href="/rules">Game rules</a>
+      <a href="/privacy">Privacy policy</a>
+      <a href="/terms">Terms of use</a>
+    </div>
+    <div class="col"><b>HELP</b>
+      <a href="/support">Support</a>
+      <a href="mailto:support@webluff.com">support@webluff.com</a>
+    </div>
+  </div>
+  <p class="fine">&copy; 2026 5arz Services LLC BLUFF is a free game of skill. Nothing pays out &mdash; the top three on the daily take 3,000, 1,500 and 750
+  stars, an in-game score that unlocks cosmetic looks only.</p>
+</div></footer>
+</body>
+</html>
