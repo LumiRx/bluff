@@ -1,5 +1,9 @@
 const GUESSES_MAX = 4;
 const { chromium } = require('playwright');
+/* Handles are claimed permanently on the server, and every suite used the same
+   one — the first to run took it and the rest stalled on the handle screen
+   waiting for a home screen that never came. Node-side only. */
+const HANDLE = 'V' + Date.now().toString(36).slice(-4).toUpperCase();
 const passGate = require('./gate');
 const path = 'file://' + __dirname + '/index.html';
 
@@ -144,14 +148,14 @@ const path = 'file://' + __dirname + '/index.html';
     page.on('pageerror', e => bad(`PAGEERROR ${e.message}`));
     await page.goto(path);
   await passGate(page);
-    await page.fill('#hnd', 'VIV'); await page.click('#go2');
+    await page.fill('#hnd', HANDLE); await page.click('#go2');
     await page.waitForSelector('#cash');
     await page.click('#cash');
     const a = await playMatch(page, 'mix');
     await page.reload();
     await page.waitForSelector('#cash', { timeout: 15000 });
     const b = await page.evaluate(() => ({ h: P.handle, r: P.rating, bank: P.bankroll, m: P.matches }));
-    if (b.h !== 'VIV' || b.m !== 1 || b.r !== a.rating || b.bank !== a.bank)
+    if (b.h !== HANDLE || b.m !== 1 || b.r !== a.rating || b.bank !== a.bank)
       bad(`career did not survive reload: ${JSON.stringify(b)} vs rating ${a.rating} bank ${a.bank}`);
     else console.log(`  survived reload: ${b.h} · ${b.r} · ${b.bank} · ${b.m} match`);
     // second match must move the ladder
