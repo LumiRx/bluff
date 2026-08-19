@@ -27,7 +27,7 @@ EXPORT_ONLY=""
 [ "${1:-}" = "--export" ] && EXPORT_ONLY=1
 
 TEAM=6X2UDX3SUP                 # Lumi Enterprises Corp.
-BUNDLE=gg.bluff.app
+BUNDLE=gg.webluff.app
 SCHEME=App
 
 say()  { printf '\n\033[1;32m==\033[0m %s\n' "$*"; }

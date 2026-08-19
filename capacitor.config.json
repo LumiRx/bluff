@@ -1,5 +1,5 @@
 {
-  "appId": "gg.bluff.app",
+  "appId": "gg.webluff.app",
   "appName": "BLUFF",
   "webDir": "dist",
   "bundledWebRuntime": false,

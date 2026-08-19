@@ -39,7 +39,7 @@ const PLAY_SA = JSON.stringify({
 });
 
 const ENV = { ASC_KEY, ASC_KEY_ID: 'ABC1234567', ASC_ISSUER: 'iss-uuid',
-              BUNDLE_ID: 'gg.bluff.app' };
+              BUNDLE_ID: 'gg.webluff.app' };
 
 /* ── Apple and Google, as they behave from the outside ────────────────────── */
 const SOLD = new Map();          // txid -> product, what the store believes
@@ -50,7 +50,7 @@ function appleFake(url, init) {
   if (!rec) return Promise.resolve({ ok: false, status: 404 });
   return Promise.resolve({ ok: true, status: 200, json: async () => ({
     signedTransactionInfo: jws({
-      transactionId: txid, bundleId: rec.bundleId || 'gg.bluff.app',
+      transactionId: txid, bundleId: rec.bundleId || 'gg.webluff.app',
       productId: rec.product, type: 'Consumable',
       revocationDate: rec.refunded ? Date.now() : undefined,
     }) }) });
@@ -168,7 +168,7 @@ function googleFake(url, init) {
   console.log('\n6. switched off');
   {
     const s2 = storage(); P.schema(s2.sql);
-    const r = await P.redeem(s2.sql, { BUNDLE_ID: 'gg.bluff.app' }, 'acct-A',
+    const r = await P.redeem(s2.sql, { BUNDLE_ID: 'gg.webluff.app' }, 'acct-A',
       { store: 'apple', transactionId: 'tx-1001' }, appleFake);
     is(r.ok, false, 'with no App Store key it says purchases are not on yet');
     is(s2.sql.exec('SELECT * FROM purchases').toArray().length, 0, 'and grants nothing');

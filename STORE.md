@@ -31,7 +31,7 @@ If cash prizes are ever switched on, this document changes substantially and the
 
 **Name** BLUFF: Word Poker
 **Subtitle** Set the word. Bet they miss.
-**Bundle ID** gg.bluff.app · **SKU** BLUFF001
+**Bundle ID** gg.webluff.app · **SKU** BLUFF001
 **Primary category** Games → Word · **Secondary** Games → Board
 **Age rating** expect 9+ or 13+ — questionnaire and reasoning in `STORE-FIELDS.md`
 **Price** Free · three consumable star packs at $1.99 / $4.99 / $9.99
@@ -165,7 +165,7 @@ npm run ios                 # opens Xcode
 npm run android             # opens Android Studio
 ```
 
-`capacitor.config.json` already sets the app id (`gg.bluff.app`), the splash, the status bar and
+`capacitor.config.json` already sets the app id (`gg.webluff.app`), the splash, the status bar and
 the background colour. Two things are not in it and must be done by hand once:
 
 **iOS.** In Xcode: set the deployment target to iOS 14, set Display Name to `BLUFF`, drop

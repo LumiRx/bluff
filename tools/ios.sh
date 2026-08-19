@@ -241,7 +241,7 @@ Five things to do there, once, and then it is Archive from now on:
      then "Signing & Capabilities".
        · tick "Automatically manage signing"
        · Team: Lumi Enterprises Corp. (6X2UDX3SUP)
-       · Bundle Identifier should already read gg.bluff.app
+       · Bundle Identifier should already read gg.webluff.app
 
   2. Still on that tab, press "+ Capability" and add "Push Notifications", and
      add "In-App Purchase" while you are there.

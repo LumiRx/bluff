@@ -143,7 +143,7 @@ And when the App Store Connect key and the three IAP products exist:
 npx wrangler secret put ASC_KEY           # the whole .p8, BEGIN and END lines included
 npx wrangler secret put ASC_KEY_ID
 npx wrangler secret put ASC_ISSUER
-npx wrangler secret put BUNDLE_ID         # gg.bluff.app
+npx wrangler secret put BUNDLE_ID         # gg.webluff.app
 ```
 
 Until those four are set, a purchase attempt is told plainly that purchases are not switched on —

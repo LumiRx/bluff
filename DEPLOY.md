@@ -89,7 +89,7 @@ cd server
 wrangler secret put ASC_KEY      # the App Store Connect .p8, whole — same key as the CLI
 wrangler secret put ASC_KEY_ID
 wrangler secret put ASC_ISSUER
-wrangler secret put BUNDLE_ID    # gg.bluff.app
+wrangler secret put BUNDLE_ID    # gg.webluff.app
 wrangler secret put PLAY_SA      # the Play service-account JSON, whole
 ```
 
@@ -173,7 +173,7 @@ npm run android     # Capacitor → Android Studio
 ```bash
 cd ~/Downloads && unzip -oq bluff-app.zip -d bluff
 python3 bluff/tools/appstore/asc.py          # asks the questions, then verifies
-python3 bluff/tools/appstore/asc.py builds gg.bluff.app
+python3 bluff/tools/appstore/asc.py builds gg.webluff.app
 ```
 
 The `.p8` is a private signing key and Apple issues it once. It goes on the Mac and in a password
