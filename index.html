@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <title>BLUFF — pick a word, bet they cannot get it</title>
-<meta name="description" content="Poker structure, word deduction. Set a secret word, give one clue, name your price, and bet nobody cracks it.">
+<meta name="description" content="A daily word game with a fold button. Set a secret word, give one clue, set the difficulty, and claim nobody cracks it.">
 <meta name="theme-color" content="#0a1210">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -4876,7 +4876,7 @@ const ROSTER=[
  ["REX",  1596,"solid", "grinds small edges, never tilts"],
  ["NOMAD",1544,"solid", "plays it straight, hard to read"],
  ["VANE", 1509,"solid", "balanced, occasionally brilliant"],
- ["JINX", 1478,"loose", "calls light and pays for it"],
+ ["JINX", 1478,"loose", "calls light and loses for it"],
  ["COIN", 1435,"tight", "waits all session for one spot"],
  ["TILT", 1420,"loose", "chases, and you can feel it"],
  ["DUKE", 1389,"loose", "cannot pass up a pinned letter"],
@@ -6236,19 +6236,19 @@ const TITLES=[
 const TRAITS=[
   {k:"bullied",n:"MOST BULLIED",   d:"the table eats well when this one calls",
    min:p=>p.called>=20, test:p=>p.missed/Math.max(1,p.called)>=.55},
-  {k:"ghost",  n:"NOBODY CALLS",   d:"so frightening that nobody pays to play",
+  {k:"ghost",  n:"NOBODY CALLS",   d:"so frightening that nobody takes it on",
    min:p=>p.setHands>=12, test:p=>p.setNoTakers/Math.max(1,p.setHands)>=.30},
   {k:"station",n:"CALLING STATION",d:"has never once believed a word of it",
    min:p=>p.called+p.foldedN>=20, test:p=>p.called/Math.max(1,p.called+p.foldedN)>=.85},
   {k:"rock",   n:"THE ROCK",       d:"folds more than anybody at the table",
    min:p=>p.foldsJudged>=12, test:p=>p.foldedN/Math.max(1,p.called+p.foldedN)>=.42},
-  {k:"bust",   n:"BUST ARTIST",    d:"has run the bankroll to nothing, repeatedly",
+  {k:"bust",   n:"BUST ARTIST",    d:"has run the stars to nothing, repeatedly",
    min:p=>true, test:p=>(p.busts||0)>=10},
   {k:"angler", n:"BEST BLUFFER",   d:"sets words the table cannot crack",
    min:p=>p.setHands>=12, test:p=>p.setHeld/Math.max(1,p.setHands)>=.55},
   {k:"safe",   n:"SAFE HANDS",     d:"folds the ones that were going to hurt",
    min:p=>p.foldsJudged>=12, test:p=>p.goodFolds/Math.max(1,p.foldsJudged)>=.75},
-  {k:"whale",  n:"BIG POT",        d:"took a pot most people never see",
+  {k:"whale",  n:"BIG ROUND",        d:"took a points most people never see",
    min:p=>true, test:p=>p.bigPot>=400},
   {k:"iron",   n:"IRON STREAK",    d:"six wins without sitting down",
    min:p=>true, test:p=>(p.bestStreak||0)>=6},
@@ -6438,7 +6438,7 @@ const ITEMS={
   peek: {ic:ico("peek"),lb:"PEEK",  target:1,rare:0,phase:"play",
          desc:"See a rival's most recent guess and what it scored."},
   seat: {ic:ico("seat"),lb:"SEAT",  target:0,rare:0,phase:"action",
-         desc:"Move to the back of the betting order and watch everyone act first."},
+         desc:"Move to the back of the claiming order and watch everyone act first."},
   mull: {ic:ico("mull"), lb:"REDEAL",target:0,rare:0,phase:"deal",
          desc:"Throw your five cards away and take five new ones."},
   scram:{ic:ico("scram"),lb:"SCRAM", target:1,rare:0,phase:"play",
@@ -6488,7 +6488,7 @@ function drawTray(){
       +"<div class='ic'>"+it.ic+"</div><div class='lb'>"+it.lb+"</div></div>";
   }
   const canMuck=S.phase==="play"&&S.seats[0].state==="call"&&!S.seats[0].cracked;
-  if(canMuck)h+="<button class='muck' id='muckBtn'>MUCK<small>give up the hand</small></button>";
+  if(canMuck)h+="<button class='muck' id='muckBtn'>PASS<small>give up the hand</small></button>";
   t.innerHTML=h;
   if(canMuck){
     const mb=$("muckBtn");
@@ -6498,7 +6498,7 @@ function drawTray(){
       this.innerHTML="PAY "+S.stake+"<small>tap again to end it</small>";
       this.classList.add("armed");
       setTimeout(()=>{if(mb&&mb.dataset.armed){mb.dataset.armed="";
-        mb.innerHTML="MUCK<small>give up the hand</small>";mb.classList.remove("armed");}},3500);
+        mb.innerHTML="PASS<small>give up the hand</small>";mb.classList.remove("armed");}},3500);
     };
   }
   [...t.querySelectorAll(".item[data-k]")].forEach(el=>{
@@ -6509,7 +6509,7 @@ function drawTray(){
   const hint=$("trayHint");
   if(hint)hint.textContent=S.arm
     ?(ITEMS[S.arm].target?"tap a player to use "+ITEMS[S.arm].lb:ITEMS[S.arm].desc)
-    :(canMuck&&!its.length?"stuck? muck costs the same as missing"
+    :(canMuck&&!its.length?"stuck? pass costs the same as missing"
       :its.length?"tap an item to use it":"win hands to earn power-ups");
 }
 function armItem(k){
@@ -6615,7 +6615,7 @@ function muckHand(){
   me.state="bust";S.arm=null;S.mucked=true;
   drawRivals();drawTable();drawTray();
   eventBanner("MUCKED",
-    "You pay "+S.stake+" stars, the same as missing — this only ends the hand instead of "
+    "You lose "+S.stake+" stars, the same as missing — this only ends the hand instead of "
     +"holding the table up."+(salvage?" You salvaged a "+ITEMS[salvage].lb+" out of it.":""),3400);
   setTimeout(checkDone,700);
 }
@@ -6803,8 +6803,8 @@ function phasePrice(){
   S.phase="price";
   stage().innerHTML=
    "<div class='panel'><div class='ttl'>SET THE PRICE</div>"
-   +"<div class='sub'>Anyone who calls puts up this much at <b>even money</b>. Crack it and you pay "
-   +"them. Miss it and they pay you. <b>You gave away "+S.tell.n+" words, so your ceiling is "
+   +"<div class='sub'>Anyone who calls matches this much, <b>one for one</b>. Crack it and you hand over "
+   +"them. Miss it and they hand it to you. <b>You gave away "+S.tell.n+" words, so your ceiling is "
    +capFor(S.tell.n,S.word.length)+".</b></div>"
    +"<div class='stakes' id='stk'></div>"
    +"<div class='row'><button class='btn go' id='goBtn' disabled>DEAL IT</button></div></div>"
@@ -6866,7 +6866,7 @@ function phaseAction(){
    +"<span><u>GUESSES</u>"+GUESSES+"</span></div>"
    +"<div class='sub' id='actS'></div><div class='row' id='actR'></div>"
    +"<div id='tray'></div><div id='trayHint'></div></div>";
-  centerNote("price "+S.stake+"<br>even money");
+  centerNote("claim "+S.stake+"<br>one for one");
   /* order: seats after the button, wrapping */
   S.order=[];for(let k=1;k<SEATS;k++)S.order.push((S.button+k)%SEATS);
   S.oi=0;stepAction();
@@ -6920,7 +6920,7 @@ function afterAction(){
   const callers=S.seats.filter(x=>x.state==="call");
   drawTable();
   if(!callers.length){
-    toast("Everybody folded — you only collect the antes",2600);
+    toast("Everybody folded — you only collect the entries",2600);
     S.settling=true;return setTimeout(showdown,1400);
   }
   countIn(phasePlay);
@@ -6971,7 +6971,7 @@ function phasePlay(){
    +"<div class='tt'><b>THE TELL</b>"+tellText(S.tell)[1]+"</div></div>";
   if(me.setter){
     h+="<div class='panel'><div class='ttl'>YOU SET "+S.word+"</div>"
-      +"<div class='sub'>"+callers.length+" called at "+S.stake+". Every one that misses pays you.</div>"
+      +"<div class='sub'>"+callers.length+" called at "+S.stake+". Every one that misses hands you the claim.</div>"
       +"<div style='margin:10px 0 4px;font-size:9px;letter-spacing:.14em;color:#7f9a8d'>TABLE HEAT</div>"
       +"<div id='heat'><div id='heatF'></div></div></div>";
   }else if(!iPlay){
@@ -7233,13 +7233,13 @@ function showdown(){
   const me=S.seats[0];
   let verdict;
   if(me.setter)verdict=!callers.length
-      ?"Nobody would touch it. You collect the antes and nothing else — that is what a clue "
+      ?"Nobody would touch it. You collect the entries and nothing else — that is what a clue "
        +"too thin to tempt anyone is worth."
     :cracked===0?"Nobody got it. You take the table."
     :cracked>=callers.length?"Everyone cracked it. That word was too kind."
     :cracked+" of "+callers.length+" cracked it.";
   else if(me.cracked)verdict="You cracked it.";
-  else if(me.state==="bust")verdict="You missed. "+setter.name+" takes your stake.";
+  else if(me.state==="bust")verdict="You missed. "+setter.name+" takes your claim.";
   else verdict="You folded. "+(cracked?"Someone got it anyway.":"Good laydown — nobody cracked it.");
 
   ovShow(
@@ -7506,7 +7506,7 @@ function entryLine(){
         +"final at midnight UTC — later runs can still pass you</em></div>";
     return "<div class='ban hold'>"+(rank?rank+ordSuffix(rank)+" ON THE BOARD":"ON THE BOARD")
       +"<em>"+(P.daily.players?"of "+P.daily.players+" runs today. ":"")
-      +"Top three take the star pot — final at midnight UTC.</em></div>";
+      +"Top three take the star total — final at midnight UTC.</em></div>";
   }
   if(!cashEligible()){
     return "<div class='ban hold'>"+(S.dailyPlace?S.dailyPlace+ordSuffix(S.dailyPlace)
@@ -7532,7 +7532,7 @@ function entryLine(){
       +"standings are final at midnight UTC — later runs can still pass you</em></div>";
   return "<div class='ban hold'>"+(rank?rank+ordSuffix(rank)+" ON THE BOARD":"ON THE BOARD")
     +"<em>"+(P.daily.players?"of "+P.daily.players+" today. ":"")
-    +"Top three pays — final at midnight UTC.</em></div>";
+    +"Top three score — final at midnight UTC.</em></div>";
 }
 
 function screenSummary(back){
@@ -7606,13 +7606,13 @@ function help(){
    +"get rich.</b></p>"
    +"<p>You are dealt five words with their real <b>crack rate</b> — how often people actually solve "
    +"them in three. Pick one, then give the table exactly one clue, then post a price.</p>"
-   +"<p>Everyone who calls and <b>misses pays you</b> the price. Everyone who calls and "
-   +"<b>cracks it, you pay</b>. Even money, settled one on one.</p>"
-   +"<p>The trap: if your word looks impossible, everyone folds and you win only the antes. "
+   +"<p>Everyone who calls and <b>misses hands you the claim</b>. Everyone who calls and "
+   +"<b>cracks it, you hand it over</b>. One for one, settled head to head.</p>"
+   +"<p>The trap: if your word looks impossible, everyone folds and you win only the entries. "
    +"You need a word that <b>looks</b> beatable and is not.</p><div class='hr'></div>"
    +"<p style='color:#e6c069;letter-spacing:.14em;font-size:10px'>WHEN YOU GUESS</p>"
    +"<p>You see the clue and who has already called. Then <b>fold</b> and keep your stars, or "
-   +"<b>call</b> and get four guesses \u2014 only the first three carry the bet.</p>"
+   +"<b>call</b> and get four guesses \u2014 only the first three carry the claim.</p>"
    +"<div class='ex'><i class='h'>C</i><i></i><i class='n'>A</i><i></i><i></i></div>"
    +"<p>Green is right letter, right place. Amber is right letter, wrong place. Grey is not in "
    +"the word at all.</p><div class='hr'></div>"
@@ -7620,7 +7620,7 @@ function help(){
    +"<p>A void always names two common letters, so it does cut the field &mdash; but it still "
    +"leaves hundreds of words alive. A pin feels like the strongest clue on the menu, which is "
    +"exactly why it is the one to distrust: it can be a gift or a grave — ask yourself how many words share that ending "
-   +"before you put chips in.</p>"
+   +"before you commit.</p>"
    +"<div class='hr'></div>"
    +"<p style='color:#e6c069;letter-spacing:.14em;font-size:10px'>POWER-UPS</p>"
    +"<p>Earned only by playing well — holding a word you set, cracking one, or laying down a "
@@ -7634,7 +7634,7 @@ function help(){
    +"a deduction they bought.</p>"
    +"<div class='hr'></div>"
    +"<p style='color:#e6c069;letter-spacing:.14em;font-size:10px'>TABLES</p>"
-   +"<p><b>Cash</b> moves your bankroll and your rating. <b>Speed</b> gives every player "
+   +"<p><b>Ranked</b> moves your stars and your rating. <b>Speed</b> gives every player "
    +"ninety seconds a hand — the clock is invisible until the last thirty, then the whole "
    +"table watches it burn. <b>Daily</b> deals the same six hands to everyone in the world "
    +"and moves your streak, not your rating.</p>"
@@ -8227,15 +8227,15 @@ function screenRebuy(){
     +"<p class='fine'>A seat at a table costs "+st(BUYIN)+" to sit down. You have "
     +st(P.bankroll)+".</p>"
     +"<div class='sgrid'><div class='sc'><b>"+(ready?"READY":clock)+"</b>"
-      +"<span>NEXT FREE STAKE</span></div>"
+      +"<span>NEXT FREE ROUND</span></div>"
       +"<div class='sc'><b>"+st(BUYIN)+"</b><span>BUY-IN</span></div></div>"
     +(ready
-      ?"<div class='row'><button class='btn go' id='rbFree'>TAKE THE FREE STAKE"
+      ?"<div class='row'><button class='btn go' id='rbFree'>TAKE THE FREE CLAIM"
         +"<small>on the house, every "+REBUY_HOURS+" hours</small></button></div>"
-      :"<p class='fine'>The house stakes you again in <b>"+clock+"</b>. Every "
+      :"<p class='fine'>The house claims you again in <b>"+clock+"</b>. Every "
         +REBUY_HOURS+" hours, always, whatever else you do.</p>")
     +"<div class='row'><button class='btn go' id='rbDaily'>PLAY TODAY'S DAILY<small>free, "
-    +"needs no stake, and it is the one that counts</small></button></div>"
+    +"needs no claim, and it is the one that counts</small></button></div>"
     +"<p class='fine'>That board ranks decisions on six deals everybody in the world "
     +"gets, so nothing you could buy would move you up it. It is open right now.</p>"
     +(Ads.live&&ads>0
@@ -8303,7 +8303,7 @@ function screenStore(cat,keepPick){
    +action
    +(PACKS_LIVE&&Pay.live
      ?"<div class='starshop'><div class='sh'>OUT OF STARS?</div>"
-      +"<p class='sub'>Stars are your stake at a table, and they buy the looks above. "
+      +"<p class='sub'>Stars are your claim at a table, and they buy the looks above. "
       +"They are not a shortcut \u2014 nothing in here changes a hand, a rating, or the "
       +"daily board. You can also just win them.</p>"
       +"<div class='packs'>"+PACKS.map((k,i)=>"<button class='pack"+(k.flag?" best":"")
@@ -8312,8 +8312,8 @@ function screenStore(cat,keepPick){
         +"<span class='usd'>$"+k.usd+"</span>"
         +(k.extra?"<em>"+k.extra+"</em>":"")+"</button>").join("")+"</div></div>"
      :"<div class='starshop'><div class='sh'>OUT OF STARS?</div>"
-      +"<p class='sub'>Then win one back, or wait \u2014 the house stakes you every "
-      +REBUY_HOURS+" hours. The daily needs no stake at all.</p></div>")
+      +"<p class='sub'>Then win one back, or wait \u2014 the house claims you every "
+      +REBUY_HOURS+" hours. The daily needs no claim at all.</p></div>")
    +"<div class='row'><button class='btn alt' id='bk'>BACK</button></div>",true);
 
   [...document.querySelectorAll(".tabs button[data-t]")].forEach(b=>
@@ -8559,7 +8559,7 @@ function screenHome(){
    +"<button class='btn alt' id='speed'>"+ico("bolt")+" SPEED<small>90s a hand</small></button></div>"
    +"<div class='row'><button class='btn "+(done?"alt":"go")+"' id='daily'>"
      +(done?"DAILY PLAYED":"PLAY THE DAILY")+"<small>"
-     +(done?"back tomorrow \u00B7 streak "+P.daily.streak:"this is the one that pays")
+     +(done?"back tomorrow \u00B7 streak "+P.daily.streak:"this is the one that counts")
      +"</small></button></div>"
    +"<div class='row'><button class='btn alt' id='store'>\u2726 STORE</button>"
    +"<button class='btn alt' id='invite'>INVITE</button>"
@@ -8767,12 +8767,12 @@ function screenLegal(which,back){
   }else{
     const ex=!!P.excluded;
     body="<h2>PLAYING WELL</h2><div class='legal'>"
-     +"<p>This game is shaped like betting, so it is worth being straight about it. There is "
+     +"<p>This game is shaped like claiming, so it is worth being straight about it. There is "
      +"<b>no money in BLUFF</b>: nothing to buy, nothing to win, and nothing that can be cashed "
      +"out. Stars are a score. They buy the look of your table and nothing else, and they change "
      +"no hand, no rating and no place on the board. Power-ups are earned at the table and are "
      +"never sold.</p>"
-     +"<h3>THE BET IS THE PUZZLE</h3><p>The decision the game is actually asking for is whether "
+     +"<h3>THE CLAIM IS THE PUZZLE</h3><p>The decision the game is actually asking for is whether "
      +"a clue is worth paying for. Folding is a move, and a good fold is worth points. If you "
      +"are calling every hand regardless of the clue, you are playing a slower word game rather "
      +"than this one.</p>"
@@ -8803,7 +8803,7 @@ function screenPrize(){
   ovShow("<h2>"+ico("cup","big")+" THE DAILY PAYS</h2>"
    +"<p class='fine'>Everybody in the world plays the same six deals until midnight, so the "
    +"board ranks how well you played a fixed problem rather than who got the kinder word. "
-   +"The top three take the star pot.</p>"
+   +"The top three take the star total.</p>"
    +"<div class='board'>"
    +PRIZE.daily.map((v,i)=>lrow({i:i,name:["FIRST","SECOND","THIRD"][i],
       val:cash?"$"+PRIZE.cash[i]:v.toLocaleString(),unit:cash?"CASH":"STARS",
@@ -8962,12 +8962,12 @@ function wireAccount(){
 
 function screenHandle(){
   ovShow("<h1>BLUFF</h1>"
-   +"<p style='letter-spacing:.1em;font-size:11px;margin-top:2px'>PICK A WORD. BET THEY CANNOT GET IT.</p>"
+   +"<p style='letter-spacing:.1em;font-size:11px;margin-top:2px'>PICK A WORD. CLAIM THEY CANNOT GET IT.</p>"
    +"<div class='ex'><i class='h'>W</i><i></i><i></i><i></i><i class='h'>H</i></div>"
    +"<p>Six seats, six hands, the button rotates. On your hand you choose a secret word, give the "
-   +"table <b>one clue</b>, and name your price. Anyone who calls gets four guesses and beats "
+   +"table <b>one clue</b>, and set the difficulty. Anyone who calls gets four guesses and beats "
    +"you by cracking it in the first three — "
-   +"<b>miss and they pay you, crack it and you pay them.</b></p>"
+   +"<b>miss and you take their stars, crack it and they take yours.</b></p>"
    +"<p>Everything you do from here goes on your record.</p>"
    +"<input id='hnd' maxlength='9' placeholder='PICK A HANDLE' autocomplete='off'>"
    +"<p class='fine' id='hnote'>This is the name on the board, and it is yours once you take "
@@ -9050,7 +9050,7 @@ function screenProfile(){
      +"<u>\u203A</u></button>":"")
    +"<div class='sect'>SOUND</div>"
    +"<button class='toggle"+(P.mute?"":" on")+"' id='psnd'><b>"
-   +(P.mute?"OFF":"ON")+"</b><span>chips, letters turning, and money landing</span>"
+   +(P.mute?"OFF":"ON")+"</b><span>letters turning, and stars landing</span>"
    +"<i></i></button>"
    +"<button class='toggle"+(P.noMusic||P.mute?"":" on")+"' id='pmus'><b>"
    +(P.noMusic?"OFF":"ON")+"</b><span>the background track</span><i></i></button>"
