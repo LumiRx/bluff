@@ -72,7 +72,7 @@ export async function send(env, { token, title, body, data, topic, sandbox }) {
       method: 'POST',
       headers: {
         authorization: `bearer ${jwt}`,
-        'apns-topic': topic || env.APNS_TOPIC || 'gg.webluff.app',
+        'apns-topic': topic || env.APNS_TOPIC || 'gg.bluff.app',
         'apns-push-type': 'alert',
         'apns-priority': '5',            /* not urgent; let iOS batch it */
         'content-type': 'application/json'

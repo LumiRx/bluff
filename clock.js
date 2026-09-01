@@ -6,7 +6,7 @@ const passGate = require('./gate');
   p.on('pageerror',e=>errs.push(e.message));
   await p.goto('file://'+__dirname+'/index.html');
   await passGate(p);
-  await p.fill('#hnd','VIV'); await p.click('#go2');
+  await p.fill('#hnd','F'+Math.random().toString(36).replace(/[^a-z0-9]/g,'').slice(0,6).toUpperCase()); await p.click('#go2');
   await p.waitForSelector('#speed'); await p.click('#speed');
   for(let h=0;h<4;h++){
     if(await p.locator('#pickBtn').count()){

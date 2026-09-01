@@ -9,7 +9,7 @@ const passGate = require('./gate');
   await p.addInitScript(() => { window.fetch = () => Promise.reject(new Error('offline')); });
   await p.goto('file://'+__dirname+'/index.html');
   await passGate(p);
-  await p.fill('#hnd','VIV'); await p.click('#go2');
+  await p.fill('#hnd','F'+Math.random().toString(36).replace(/[^a-z0-9]/g,'').slice(0,6).toUpperCase()); await p.click('#go2');
   await p.waitForSelector('#cash'); await p.click('#cash');
 
   // hand 1: you set -> test REDEAL

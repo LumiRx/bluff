@@ -7,7 +7,7 @@ const passGate = require('./gate');
     const errs=[];p.on('pageerror',e=>errs.push(e.message));
     await p.goto('file://'+__dirname+'/index.html');
   await passGate(p);
-    await p.fill('#hnd','VIV'); await p.click('#go2');
+    await p.fill('#hnd','F'+Math.random().toString(36).replace(/[^a-z0-9]/g,'').slice(0,6).toUpperCase()); await p.click('#go2');
     await p.waitForSelector('#cash'); await p.click('#cash');
     let shot=false;
     for(let hand=0;hand<3;hand++){

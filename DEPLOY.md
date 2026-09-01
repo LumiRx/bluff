@@ -89,7 +89,7 @@ cd server
 wrangler secret put ASC_KEY      # the App Store Connect .p8, whole — same key as the CLI
 wrangler secret put ASC_KEY_ID
 wrangler secret put ASC_ISSUER
-wrangler secret put BUNDLE_ID    # gg.webluff.app
+wrangler secret put BUNDLE_ID    # gg.bluff.app
 wrangler secret put PLAY_SA      # the Play service-account JSON, whole
 ```
 
@@ -125,7 +125,18 @@ duration cover roughly 50,000 daily players. See `SCALE.md` for the arithmetic.
 ## 2. The site
 
 ```bash
-npx wrangler pages deploy site --project-name=bluff
+cd site && npx wrangler pages deploy . --project-name=bluff --branch=main
+
+<!-- Two traps, both of which have already bitten once (27 Aug 2026):
+     1. You MUST cd into site/ first. `wrangler pages deploy site` from the repo root
+        looks for ./functions relative to the CURRENT DIRECTORY, finds nothing, and
+        deploys with NO Functions bundle — silently. That kills /t/<code>, /c/<code>,
+        /api/hit, /api/notify and /api/stats while every page still returns 200.
+        A correct deploy prints 'Compiled Worker successfully' and 'Uploading Functions
+        bundle'. If you do not see BOTH lines, functions did not ship.
+     2. You MUST pass --branch=main. The local git branch is master; the Pages project's
+        production branch is main. Without the flag wrangler tags the deployment 'master'
+        and it lands as a PREVIEW — webluff.com keeps serving the old build. -->
 ```
 
 Then in the dashboard:
@@ -146,7 +157,18 @@ version into the service worker's cache key:
 ```bash
 npm run build           # bumps dist/sw.js to the version in package.json
 cp -r dist/. site/play/
-npx wrangler pages deploy site --project-name=bluff
+cd site && npx wrangler pages deploy . --project-name=bluff --branch=main
+
+<!-- Two traps, both of which have already bitten once (27 Aug 2026):
+     1. You MUST cd into site/ first. `wrangler pages deploy site` from the repo root
+        looks for ./functions relative to the CURRENT DIRECTORY, finds nothing, and
+        deploys with NO Functions bundle — silently. That kills /t/<code>, /c/<code>,
+        /api/hit, /api/notify and /api/stats while every page still returns 200.
+        A correct deploy prints 'Compiled Worker successfully' and 'Uploading Functions
+        bundle'. If you do not see BOTH lines, functions did not ship.
+     2. You MUST pass --branch=main. The local git branch is master; the Pages project's
+        production branch is main. Without the flag wrangler tags the deployment 'master'
+        and it lands as a PREVIEW — webluff.com keeps serving the old build. -->
 ```
 
 Skipping the version bump leaves returning players on the previous build forever. That used to be
@@ -173,7 +195,7 @@ npm run android     # Capacitor → Android Studio
 ```bash
 cd ~/Downloads && unzip -oq bluff-app.zip -d bluff
 python3 bluff/tools/appstore/asc.py          # asks the questions, then verifies
-python3 bluff/tools/appstore/asc.py builds gg.webluff.app
+python3 bluff/tools/appstore/asc.py builds gg.bluff.app
 ```
 
 The `.p8` is a private signing key and Apple issues it once. It goes on the Mac and in a password

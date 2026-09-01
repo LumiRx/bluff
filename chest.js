@@ -7,7 +7,7 @@ const passGate = require('./gate');
   p.on('console',m=>{if(m.type()==='error')errs.push('CONSOLE '+m.text())});
   await p.goto('file://'+__dirname+'/index.html');
   await passGate(p);
-  await p.fill('#hnd','VIV'); await p.click('#go2'); await p.waitForSelector('#cash');
+  await p.fill('#hnd','F'+Math.random().toString(36).replace(/[^a-z0-9]/g,'').slice(0,6).toUpperCase()); await p.click('#go2'); await p.waitForSelector('#cash');
   console.log('  empty chest strip present:',await p.locator('.chest.idle').count()>0);
 
   // simulate a run of top-three finishes across days

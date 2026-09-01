@@ -18,7 +18,7 @@ to publish under and a real support address.
 `tools/appstore/README.md` has the install and the verification. Google Play is $25 once, when you
 get to it.
 
-**Decide the bundle ID before the first upload.** `capacitor.config.json` says `gg.webluff.app` but
+**Decide the bundle ID before the first upload.** `capacitor.config.json` says `gg.bluff.app` but
 the domain is `webluff.com`, so `com.webluff.app` is the conventional choice. It makes no technical
 difference — but a bundle ID **cannot be changed after the first upload**, so it is worth thirty
 seconds now rather than a new app record later.

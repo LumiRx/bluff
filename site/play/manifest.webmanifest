@@ -1,5 +1,5 @@
 {
-  "name": "BLUFF — pick a word, bet they cannot get it",
+  "name": "BLUFF — pick a word, claim they cannot get it",
   "short_name": "BLUFF",
   "id": "/",
   "start_url": "./index.html",
@@ -7,12 +7,12 @@
   "display": "standalone",
   "display_override": ["standalone", "fullscreen"],
   "orientation": "portrait",
-  "background_color": "#0a1210",
-  "theme_color": "#0a1210",
+  "background_color": "#141A24",
+  "theme_color": "#141A24",
   "categories": ["games", "word", "puzzle"],
   "lang": "en",
   "dir": "ltr",
-  "description": "Poker structure, word deduction. Set a secret word, give the table one clue, name your price, and bet nobody cracks it. Six seats, six hands, the button rotates.",
+  "description": "Poker structure, word deduction. Set a secret word, give the table one clue, set the difficulty, and claim nobody cracks it. Six seats, six hands, the button rotates.",
   "icons": [
     { "src": "icons/icon-48.png",  "sizes": "48x48",   "type": "image/png" },
     { "src": "icons/icon-72.png",  "sizes": "72x72",   "type": "image/png" },
@@ -29,7 +29,7 @@
   "shortcuts": [
     { "name": "Play the daily", "short_name": "Daily", "url": "./index.html?go=daily",
       "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }] },
-    { "name": "Cash game", "short_name": "Cash", "url": "./index.html?go=cash",
+    { "name": "Open table", "short_name": "Table", "url": "./index.html?go=cash",
       "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }] }
   ]
 }

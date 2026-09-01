@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://webluff.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://webluff.com/play/</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://webluff.com/faq</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://webluff.com/vs-wordle</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://webluff.com/rules</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://webluff.com/support</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://webluff.com/privacy</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://webluff.com/terms</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://webluff.com/</loc><lastmod>2026-08-25</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://webluff.com/play/</loc><lastmod>2026-08-25</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://webluff.com/faq</loc><lastmod>2026-08-25</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://webluff.com/vs-wordle</loc><lastmod>2026-08-25</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://webluff.com/rules</loc><lastmod>2026-08-25</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://webluff.com/support</loc><lastmod>2026-08-25</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://webluff.com/privacy</loc><lastmod>2026-08-25</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://webluff.com/terms</loc><lastmod>2026-08-25</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://webluff.com/press</loc><lastmod>2026-08-25</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

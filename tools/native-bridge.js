@@ -78,11 +78,15 @@
 
   /* ── rewarded video ────────────────────────────────────────────────────── */
   if (admob) {
-    /* Test ids. Swap for the real unit ids before shipping — a live build
-       serving test ads earns nothing, and a test build serving live ads is how
-       an AdMob account gets suspended for invalid traffic. */
-    var UNIT = isIOS ? 'ca-app-pub-3940256099942544/1712485313'
-                     : 'ca-app-pub-3940256099942544/5224354917';
+    /* v1 ships with no ad SDK, so window.Capacitor.Plugins.AdMob is undefined
+       and this whole block is skipped. When ads come back in a later version,
+       set window.BLUFF_AD_UNIT to a REAL AdMob unit id before this loads.
+       There is deliberately no default: Google's sample ids earn nothing, and
+       a build that ships them is both worthless and a rejection risk. The
+       mirror of that is also true — a test build serving live ads is how an
+       AdMob account gets suspended for invalid traffic. */
+    var UNIT = window.BLUFF_AD_UNIT || '';
+    if (!UNIT) { console.warn('[ads] no BLUFF_AD_UNIT configured - rewarded ads disabled'); return; }
     var started = admob.initialize({ initializeForTesting: false }).catch(function () {});
 
     /* Apple's tracking prompt, asked once, at the only moment it is ever going

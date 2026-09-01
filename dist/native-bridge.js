@@ -78,16 +78,42 @@
 
   /* ── rewarded video ────────────────────────────────────────────────────── */
   if (admob) {
-    /* Test ids. Swap for the real unit ids before shipping — a live build
-       serving test ads earns nothing, and a test build serving live ads is how
-       an AdMob account gets suspended for invalid traffic. */
-    var UNIT = isIOS ? 'ca-app-pub-3940256099942544/1712485313'
-                     : 'ca-app-pub-3940256099942544/5224354917';
+    /* v1 ships with no ad SDK, so window.Capacitor.Plugins.AdMob is undefined
+       and this whole block is skipped. When ads come back in a later version,
+       set window.BLUFF_AD_UNIT to a REAL AdMob unit id before this loads.
+       There is deliberately no default: Google's sample ids earn nothing, and
+       a build that ships them is both worthless and a rejection risk. The
+       mirror of that is also true — a test build serving live ads is how an
+       AdMob account gets suspended for invalid traffic. */
+    var UNIT = window.BLUFF_AD_UNIT || '';
+    if (!UNIT) { console.warn('[ads] no BLUFF_AD_UNIT configured - rewarded ads disabled'); return; }
     var started = admob.initialize({ initializeForTesting: false }).catch(function () {});
+
+    /* Apple's tracking prompt, asked once, at the only moment it is ever going
+     * to be said yes to: the player has just chosen to watch an ad in exchange
+     * for a stake, so the ask has a reason attached to it. Firing it at cold
+     * launch is what drives opt-in into the teens — the prompt arrives before
+     * the person knows what the app is, and No is the safe answer to a stranger.
+     *
+     * A No is fine. AdMob serves non-personalised ads instead, which pay less
+     * and still pay; nothing in the game is gated on the answer. The one thing
+     * that must not happen is asking twice, which iOS ignores anyway but which
+     * looks broken. */
+    var asked = null;
+    function askOnce() {
+      if (!isIOS || !admob.requestTrackingAuthorization) return Promise.resolve();
+      if (!asked) asked = admob.trackingAuthorizationStatus()
+        .then(function (s) {
+          return s && s.status === 'notDetermined'
+            ? admob.requestTrackingAuthorization() : null;
+        })
+        .catch(function () {});
+      return asked;
+    }
 
     window.BluffAds = {
       rewarded: function () {
-        return started.then(function () {
+        return started.then(askOnce).then(function () {
           return admob.prepareRewardVideoAd({ adId: UNIT })
             .then(function () { return admob.showRewardVideoAd(); })
             /* the resolve carries the reward only when it was actually earned;

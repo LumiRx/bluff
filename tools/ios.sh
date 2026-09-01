@@ -141,8 +141,14 @@ JS
 # will happily reuse it, so the error survives the fix that was supposed to end it.
 rm -f ios/App/Podfile.lock
 
-say "installing the purchase and ad plugins"
-npm i --silent cordova-plugin-purchase @capacitor-community/admob
+say "installing the purchase plugin"
+npm i --silent cordova-plugin-purchase
+if [ "${ADS:-0}" = "1" ]; then
+  say "installing the ad plugin (ADS=1)"
+  npm i --silent @capacitor-community/admob
+else
+  echo "   ad plugin skipped — v1 ships with no ad SDK (ADS=1 to include it)"
+fi
 
 say "syncing the native project (this is the pod install that has to work)"
 npx cap sync ios
@@ -203,13 +209,16 @@ if [ -f "$PLIST" ]; then
   # without it — the call returns "denied" immediately and silently, which looks
   # exactly like a player who said no, so nothing tells you it is missing.
   /usr/libexec/PlistBuddy -c "Delete :NSUserTrackingUsageDescription" "$PLIST" 2>/dev/null || true
-  /usr/libexec/PlistBuddy -c "Add :NSUserTrackingUsageDescription string This lets us show ads that pay enough to keep the daily free. Say no and you still get ads, still get stars for watching one, and nothing in the game changes." "$PLIST"
+  if [ "${ADS:-0}" = "1" ]; then
+    /usr/libexec/PlistBuddy -c "Add :NSUserTrackingUsageDescription string This lets us show ads that pay enough to keep the daily free. Say no and you still get ads, still get stars for watching one, and nothing in the game changes." "$PLIST"
+  fi
 
   # AdMob refuses to serve without the app id in the plist, and the failure is a
   # crash on the first ad rather than a message. This is the public test id; the
   # real one comes from the AdMob console when the app is created there.
-  if ! /usr/libexec/PlistBuddy -c "Print :GADApplicationIdentifier" "$PLIST" >/dev/null 2>&1; then
-    /usr/libexec/PlistBuddy -c "Add :GADApplicationIdentifier string ca-app-pub-3940256099942544~1458002511" "$PLIST"
+  /usr/libexec/PlistBuddy -c "Delete :GADApplicationIdentifier" "$PLIST" 2>/dev/null || true
+  if [ "${ADS:-0}" = "1" ] && [ -n "${ADMOB_APP_ID:-}" ]; then
+    /usr/libexec/PlistBuddy -c "Add :GADApplicationIdentifier string $ADMOB_APP_ID" "$PLIST"
   fi
 fi
 
@@ -241,7 +250,7 @@ Five things to do there, once, and then it is Archive from now on:
      then "Signing & Capabilities".
        · tick "Automatically manage signing"
        · Team: Lumi Enterprises Corp. (6X2UDX3SUP)
-       · Bundle Identifier should already read gg.webluff.app
+       · Bundle Identifier should already read gg.bluff.app
 
   2. Still on that tab, press "+ Capability" and add "Push Notifications", and
      add "In-App Purchase" while you are there.

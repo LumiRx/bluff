@@ -79,7 +79,7 @@ It mints the ES256 JWT App Store Connect requires and calls the API directly. Ot
 
 ```bash
 python3 .../asc.py apps                 # bundle ids and app ids
-python3 .../asc.py builds gg.webluff.app  # uploaded builds and processing state
+python3 .../asc.py builds gg.bluff.app  # uploaded builds and processing state
 python3 .../asc.py token                # a 20-minute bearer token, for curl
 ```
 
@@ -92,7 +92,7 @@ Nothing can be uploaded until the record exists. In App Store Connect → **Apps
 - **Platform**: iOS
 - **Name**: `BLUFF: Word Poker`
 - **Primary language**: English (U.S.)
-- **Bundle ID**: `gg.webluff.app` — this must already exist as an App ID in the Developer portal
+- **Bundle ID**: `gg.bluff.app` — this must already exist as an App ID in the Developer portal
   (Certificates, Identifiers & Profiles → Identifiers). Create it there first if it is not in the
   dropdown.
 - **SKU**: anything internal and permanent, e.g. `BLUFF001`
@@ -100,7 +100,7 @@ Nothing can be uploaded until the record exists. In App Store Connect → **Apps
 `STORE.md` has every other field already written, ready to paste — description, keywords, review
 notes, and the age-rating answers.
 
-> **Bundle ID note.** `capacitor.config.json` currently says `gg.webluff.app`. The domain is
+> **Bundle ID note.** `capacitor.config.json` currently says `gg.bluff.app`. The domain is
 > `webluff.com`, so `com.webluff.app` would be the conventional choice. It does not matter
 > technically, but a bundle ID cannot be changed after the first upload — so decide now, and if you
 > change it, change `capacitor.config.json` too.
@@ -127,7 +127,7 @@ Nothing to fill in — that reads the two IDs back out of the file step 2 wrote,
 the key itself at the path step 2 installed it to. Then watch it process:
 
 ```bash
-python3 .../asc.py builds gg.webluff.app
+python3 .../asc.py builds gg.bluff.app
 ```
 
 Processing usually takes 5–30 minutes. `VALID` means it is ready to attach to a version.

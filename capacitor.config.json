@@ -1,9 +1,9 @@
 {
-  "appId": "gg.webluff.app",
+  "appId": "gg.bluff.app",
   "appName": "BLUFF",
   "webDir": "dist",
   "bundledWebRuntime": false,
-  "backgroundColor": "#0a1210",
+  "backgroundColor": "#141A24",
   "android": {
     "allowMixedContent": false,
     "captureInput": true,
@@ -12,14 +12,14 @@
   "ios": {
     "contentInset": "never",
     "scrollEnabled": false,
-    "backgroundColor": "#0a1210",
+    "backgroundColor": "#141A24",
     "limitsNavigationsToAppBoundDomains": true
   },
   "plugins": {
     "SplashScreen": {
-      "launchShowDuration": 700,
+      "launchShowDuration": 0,
       "launchAutoHide": true,
-      "backgroundColor": "#0a1210",
+      "backgroundColor": "#141A24",
       "androidSplashResourceName": "splash",
       "androidScaleType": "CENTER_CROP",
       "showSpinner": false,
@@ -28,7 +28,7 @@
     },
     "StatusBar": {
       "style": "DARK",
-      "backgroundColor": "#0a1210",
+      "backgroundColor": "#141A24",
       "overlaysWebView": true
     }
   },

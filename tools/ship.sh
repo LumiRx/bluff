@@ -27,7 +27,7 @@ EXPORT_ONLY=""
 [ "${1:-}" = "--export" ] && EXPORT_ONLY=1
 
 TEAM=6X2UDX3SUP                 # Lumi Enterprises Corp.
-BUNDLE=gg.webluff.app
+BUNDLE=gg.bluff.app
 SCHEME=App
 
 say()  { printf '\n\033[1;32m==\033[0m %s\n' "$*"; }
@@ -154,12 +154,19 @@ set_key() { pb "Delete :$1"; /usr/libexec/PlistBuddy -c "Add :$1 $2 $3" "$PLIST"
 
 say "writing Info.plist keys"
 
-# The one that is not cosmetic. Google's SDK reads this at start-up and raises
+# Only written when ADS=1. Google's SDK reads this at start-up and raises
 # if it is absent — the app dies on launch, before anything of ours runs, and
 # the crash log points at GADMobileAds rather than at the missing key. This is
-# the public test id; the real one comes from the AdMob console.
-set_key GADApplicationIdentifier string ca-app-pub-3940256099942544~1458002511
-echo "   GADApplicationIdentifier (without it the ad SDK kills the app at launch)"
+# real id only: ADMOB_APP_ID must be set, because the sample id earns nothing
+# and Apple has rejected builds that ship placeholder ad content.
+if [ "${ADS:-0}" = "1" ]; then
+  [ -n "${ADMOB_APP_ID:-}" ] || die "ADS=1 but ADMOB_APP_ID is unset. Never ship Google's sample id."
+  set_key GADApplicationIdentifier string "$ADMOB_APP_ID"
+  echo "   GADApplicationIdentifier = $ADMOB_APP_ID"
+else
+  pb "Delete :GADApplicationIdentifier"
+  echo "   GADApplicationIdentifier removed (v1 ships with no ad SDK; ADS=1 to re-enable)"
+fi
 
 # Uses exactly one kind of encryption: HTTPS to our own API, which is the
 # operating system's and which the regulations exempt. Declaring it here stops
@@ -168,11 +175,16 @@ echo "   GADApplicationIdentifier (without it the ad SDK kills the app at launch
 set_key ITSAppUsesNonExemptEncryption bool false
 echo "   ITSAppUsesNonExemptEncryption = false"
 
-# Without this string iOS does not show the tracking prompt at all: the request
+# Only written when ADS=1. Without this string iOS does not show the prompt: the request
 # returns "denied" immediately and silently, which is indistinguishable from a
 # player who said no, so nothing tells you it is missing.
-set_key NSUserTrackingUsageDescription string "This lets us show ads that pay enough to keep the daily free. Say no and you still get ads, still get stars for watching one, and nothing in the game changes."
-echo "   NSUserTrackingUsageDescription"
+if [ "${ADS:-0}" = "1" ]; then
+  set_key NSUserTrackingUsageDescription string "This lets us show ads that pay enough to keep the daily free. Say no and you still get ads, still get stars for watching one, and nothing in the game changes."
+  echo "   NSUserTrackingUsageDescription"
+else
+  pb "Delete :NSUserTrackingUsageDescription"
+  echo "   NSUserTrackingUsageDescription removed (no tracking without an ad SDK)"
+fi
 
 # Capacitor's template allows landscape. The game is portrait, the store
 # screenshots are portrait, and a landscape rotation on a table that assumes

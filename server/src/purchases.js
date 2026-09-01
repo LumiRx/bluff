@@ -27,7 +27,7 @@
      wrangler secret put ASC_KEY_ID
      wrangler secret put ASC_ISSUER
      wrangler secret put PLAY_SA          # the service-account JSON, whole
-     wrangler secret put BUNDLE_ID        # gg.webluff.app
+     wrangler secret put BUNDLE_ID        # gg.bluff.app
 */
 
 /* The catalogue lives here and only here. The identifiers have to match what

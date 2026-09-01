@@ -15,26 +15,19 @@
       ITMS-91053 email within minutes of the upload, naming the exact API and
       category it found. That email is the fix list; it is not a rejection.
 
-  NSPrivacyTrackingDomains has a consequence worth knowing before you ship it: a
-  player who declines the tracking prompt does not merely get worse ads, the
-  operating system blocks the app's connections to every domain listed here. That
-  is the intended behaviour and it is why the list is only ad domains — nothing
-  the game needs to function is in it.
+  v1 ships with NO advertising SDK. NSPrivacyTracking is false, the tracking
+  domain list is empty, and no advertising identifier is collected, so there is
+  no ATT prompt. If ads come back in a later version, this file and the App Store
+  Connect answers have to change together, and NSUserTrackingUsageDescription has
+  to go back into Info.plist before the SDK is added.
 -->
 <plist version="1.0">
 <dict>
   <key>NSPrivacyTracking</key>
-  <true/>
+  <false/>
 
   <key>NSPrivacyTrackingDomains</key>
-  <array>
-    <string>googleadservices.com</string>
-    <string>googlesyndication.com</string>
-    <string>doubleclick.net</string>
-    <string>googletagservices.com</string>
-    <string>app-measurement.com</string>
-    <string>adservice.google.com</string>
-  </array>
+  <array/>
 
   <key>NSPrivacyCollectedDataTypes</key>
   <array>
@@ -80,16 +73,6 @@
       <array><string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string></array>
     </dict>
 
-    <!-- the advertising identifier. This is the only entry with Tracking true,
-         and it is the reason the app asks for permission at all. -->
-    <dict>
-      <key>NSPrivacyCollectedDataType</key>
-      <string>NSPrivacyCollectedDataTypeDeviceID</string>
-      <key>NSPrivacyCollectedDataTypeLinked</key><true/>
-      <key>NSPrivacyCollectedDataTypeTracking</key><true/>
-      <key>NSPrivacyCollectedDataTypePurposes</key>
-      <array><string>NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising</string></array>
-    </dict>
   </array>
 
   <key>NSPrivacyAccessedAPITypes</key>
