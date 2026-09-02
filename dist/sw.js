@@ -2,7 +2,7 @@
    easy job: cache the shell, serve it instantly, and quietly fetch a newer copy
    in the background. Bump CACHE on every release -- old caches are dropped on
    activate, so a stale build can never outlive a deploy. */
-const CACHE = 'bluff-v3.1.0';
+const CACHE = 'bluff-v3.1.1';
 const SHELL = [
   './',
   './index.html',

@@ -949,6 +949,42 @@ html.marks .tile,html.marks .mini i,html.marks .k{position:relative}
   .rv .n{font-size:7px}
   #kb{margin-top:3px;gap:3px}
 }
+/* ── motion layer (1.1) — two curves, three durations, one moment per screen.
+   Anything that appears springs; anything that leaves eases out; nothing runs
+   past 380ms. Reduced motion gets the end states, instantly. ── */
+@keyframes bl-pop{from{transform:scale(.86)}to{transform:scale(1)}}
+@keyframes bl-commit{from{transform:scale(.9)}to{transform:scale(1)}}
+@keyframes bl-rise{from{transform:translateY(12px);opacity:.5}to{transform:none;opacity:1}}
+.tile{transition:background var(--d-fast) var(--e-out),border-color var(--d-fast) var(--e-out),color var(--d-fast) var(--e-out),transform var(--d-fast) var(--e-out)}
+.tile.f{animation:bl-pop var(--d-fast) var(--e-spring)}
+.tile.pre{transform:scale(.9)}
+.tile.h,.tile.n,.tile.m{animation:bl-commit var(--d-base) var(--e-spring)}
+.key{transition:transform var(--d-fast) var(--e-out),background var(--d-fast) var(--e-out),opacity var(--d-fast) var(--e-out)}
+.key:active{transform:translateY(1px) scale(.96)}
+#ov.on #ovC{animation:bl-rise var(--d-base) var(--e-spring)}
+.btn{transition:transform var(--d-fast) var(--e-out),background var(--d-fast) var(--e-out),opacity var(--d-fast) var(--e-out)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+/* the fold is ochre, and it takes a held breath: 650ms under the thumb, release early and nothing happened */
+#foldB{background:var(--gold);color:#141a24;border:1px solid var(--gold);position:relative;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#foldB::before{content:"";position:absolute;inset:0;width:0;background:rgba(20,26,36,.30);transition:width var(--d-fast) var(--e-out)}
+#foldB.arming::before{width:100%;transition:width 650ms linear}
+#foldB.held{opacity:.55}
+#foldB small{opacity:.8;position:relative}
+#foldB span,#foldB small{position:relative}
+#tellBar .mini{perspective:300px}
+#tellBar .mini i{transition:transform var(--d-slow) var(--e-out),opacity var(--d-slow) var(--e-out)}
+#tellBar .mini i.tip{transform:rotateX(78deg) translateY(8px);opacity:.25}
+.foldrule{height:2px;width:0;background:var(--gold);margin:14px auto 10px;transition:width var(--d-slow) var(--e-out)}
+.foldrule.draw{width:72%}
+.foldwrap{flex:1;width:100%}
+.dealer{text-align:center;font-style:italic;color:var(--dim);font-size:13px;padding:0 8px 6px}
+#leaveB.arm{border-color:#c96a57;color:#c96a57}
+/* chips are markers: flat and matte, a visible thickness instead of a shine */
+.chip{background:var(--gold);box-shadow:0 2px 0 #b77e38,0 0 0 1px rgba(0,0,0,.18) inset;color:#141a24}
+.chip.red{background:#c96a57;box-shadow:0 2px 0 #9c4b3b,0 0 0 1px rgba(0,0,0,.18) inset;color:#141a24}
+.chip.green{background:#8fa0b5;box-shadow:0 2px 0 #5d687c,0 0 0 1px rgba(0,0,0,.18) inset;color:#141a24}
+.chip.star{background:var(--cream);box-shadow:0 2px 0 #b77e38,0 0 0 1px rgba(0,0,0,.18) inset;color:#141a24}
+@media (prefers-reduced-motion:reduce){.tile,.key,.btn,#ovC,#tellBar .mini i,.foldrule,#foldB::before{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -6895,6 +6931,36 @@ function botDecides(s){
   bar-=called*.02;                                /* a little herding */
   return p>bar;
 }
+/* ── the fold ritual ──
+   Folding is the one move no other word game has, so it gets a moment: a
+   650ms hold (release early and nothing happened), then the clue tiles tip
+   face-down, an ochre rule closes the hand, and the Dealer says one line.
+   Under automation (navigator.webdriver) it is instant, so the suites and
+   any harness keep working; set window.__ritual=true to force the full
+   ceremony there. Haptics ride the native bridge and are a no-op on the web. */
+function hap(k){try{const C=window.Capacitor,H=C&&C.Plugins&&C.Plugins.Haptics;if(!H)return;
+  H.impact({style:k==="heavy"?"HEAVY":k==="medium"?"MEDIUM":"LIGHT"});}catch(e){}}
+const fastPath=()=>(navigator.webdriver===true&&!window.__ritual)||matchMedia("(prefers-reduced-motion:reduce)").matches;
+function holdToFold(b,commit){
+  let t=null,done=false;
+  if(fastPath()){b.onclick=()=>{if(done)return;done=true;commit();};return;}
+  const arm=e=>{if(done)return;if(e.cancelable)e.preventDefault();b.classList.add("arming");
+    t=setTimeout(()=>{done=true;b.classList.remove("arming");b.classList.add("held");commit();},650);};
+  const cancel=()=>{if(t){clearTimeout(t);t=null;}if(!done)b.classList.remove("arming");};
+  b.onpointerdown=arm;b.onpointerup=cancel;b.onpointerleave=cancel;b.onpointercancel=cancel;
+  b.onclick=e=>{e.preventDefault();if(!done&&!t)toast("hold to fold");};
+}
+function foldRitual(then){
+  if(fastPath())return then();
+  const tiles=[...document.querySelectorAll("#tellBar .mini i")];
+  tiles.forEach((t,i)=>setTimeout(()=>t.classList.add("tip"),i*40));
+  const r=$("actR");
+  if(r)r.innerHTML="<div class='foldwrap'><div class='foldrule'></div><div class='dealer'>Folded. Your stars stay where they are.</div></div>";
+  requestAnimationFrame(()=>{const fr=document.querySelector(".foldrule");if(fr)fr.classList.add("draw");});
+  setTimeout(()=>{tiles.forEach(t=>t.classList.remove("tip"));then();},820);
+}
+function canLeave(){const me=S.seats&&S.seats[0];
+  return !!(S.seats&&S.phase&&S.phase!=="payout"&&!S.daily&&me&&me.state!=="call");}
 function humanAction(s){
   const called=S.seats.filter(x=>x.state==="call").length;
   const acted=S.order.slice(0,S.oi).map(i=>S.seats[i]);
@@ -6906,8 +6972,8 @@ function humanAction(s){
   $("actR").innerHTML=
     "<button class='btn dan' id='foldB'>FOLD<small>keep your stars</small></button>"
    +"<button class='btn go' id='callB'>CALL "+S.stake+"<small>play the hand</small></button>";
-  $("foldB").onclick=()=>{S.awaitingHuman=false;s.state="fold";s.acting=false;S.oi++;
-    Snd.fold();drawTable();stepAction();};
+  holdToFold($("foldB"),()=>{S.awaitingHuman=false;s.state="fold";s.acting=false;S.oi++;
+    Snd.fold();hap("heavy");foldRitual(()=>{drawTable();stepAction();});});
   $("callB").onclick=()=>{S.awaitingHuman=false;s.state="call";s.chips-=S.stake;S.pot+=S.stake;
     betAnim(0,S.stake);s.acting=false;S.oi++;drawTable();stepAction();};
   drawTray();
@@ -7067,7 +7133,7 @@ function press(k){
   const me=S.seats[0];if(me.cracked||me.guesses.length>=GUESSES)return;
   if(k==="BACK"){S.cur=S.cur.slice(0,-1);paintRow();return;}
   if(k==="ENTER")return submit();
-  if(S.cur.length<S.word.length&&/^[A-Z]$/.test(k)){S.cur+=k;Snd.key();paintRow();}
+  if(S.cur.length<S.word.length&&/^[A-Z]$/.test(k)){S.cur+=k;Snd.key();hap("light");paintRow();}
 }
 function paintRow(){
   const row=$("r"+S.row);if(!row)return;
@@ -7089,13 +7155,14 @@ function submit(){
   const res=evaluate(S.cur,S.word);
   const row=$("r"+S.row);
   [...row.children].forEach((t,i)=>{
-    setTimeout(()=>{t.className="tile "+res[i];Snd.tile(res[i]);},i*85);
+    setTimeout(()=>{t.classList.add("pre");},i*85);
+    setTimeout(()=>{t.className="tile "+res[i];Snd.tile(res[i]);if(i===0)hap("medium");},i*85+110);
   });
   res.forEach((v,i)=>{
     const c=S.cur[i],cur=kbState[c];
     if(v==="h"||(v==="n"&&cur!=="h")||(!cur))kbState[c]=v;
   });
-  setTimeout(paintKb,460);
+  setTimeout(paintKb,570);
   me.guesses.push(S.cur);me.marks.push(res);
   narrowCands();setTimeout(drawTray,60);
   const solved=S.cur===S.word;
@@ -7615,7 +7682,7 @@ function help(){
    +"<p>You see the clue and who has already called. Then <b>fold</b> and keep your stars, or "
    +"<b>call</b> and get four guesses \u2014 only the first three carry the claim.</p>"
    +"<div class='ex'><i class='h'>C</i><i></i><i class='n'>A</i><i></i><i></i></div>"
-   +"<p>Green is right letter, right place. Amber is right letter, wrong place. Grey is not in "
+   +"<p>Paper is right letter, right place. Ochre is right letter, wrong place. Faded is not in "
    +"the word at all.</p><div class='hr'></div>"
    +"<p style='color:#d89b4f;letter-spacing:.14em;font-size:10px'>READING A CLUE</p>"
    +"<p>A void always names two common letters, so it does cut the field &mdash; but it still "
@@ -7641,8 +7708,13 @@ function help(){
    +"and moves your streak, not your rating.</p>"
    +"<p>A <b>table code</b> is the table: anyone who enters the same five characters plays "
    +"the identical six deals, so you can send one to a friend and compare properly.</p>"
-   +"<div class='row'><button class='btn' id='ok'>GOT IT</button></div>");
+   +"<div class='row'><button class='btn' id='ok'>GOT IT</button></div>"
+   +(canLeave()?"<div class='row'><button class='btn alt' id='leaveB'>LEAVE THE TABLE<small>your stars come with you</small></button></div>":""));
   $("ok").onclick=()=>{if(S.seats&&S.phase)ovHide();else screenHome();};
+  if($("leaveB"))$("leaveB").onclick=()=>{const b=$("leaveB");
+    if(!b.classList.contains("arm")){b.classList.add("arm");b.innerHTML="LEAVE<small>tap again \u2014 the hand ends here</small>";
+      setTimeout(()=>{if(b.isConnected){b.classList.remove("arm");b.innerHTML="LEAVE THE TABLE<small>your stars come with you</small>";}},2600);return;}
+    hap("heavy");location.reload();};
 }
 $("helpBtn").onclick=help;
 function paintSnd(){

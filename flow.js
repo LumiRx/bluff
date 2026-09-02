@@ -198,8 +198,12 @@ const path = 'file://' + __dirname + '/index.html';
               countIn(() => res(Date.now() - t0));
               setTimeout(() => dispatchEvent(new PointerEvent('pointerdown')), 120);
             }));
+            // if the hand's own count-in handed over while the probe ran, the
+            // board exists and the phase must be 'play' — restoring the older
+            // snapshot would strand the hand in a phase it has left
             await page.evaluate(b => { const s = JSON.parse(b);
-              window._snd = s.snd; S.phase = s.phase; }, snap);
+              window._snd = s.snd;
+              S.phase = document.getElementById('board') ? 'play' : s.phase; }, snap);
             if (skipped > 700) bad(`tapping through the count-in took ${skipped}ms — it did not skip`);
             else ok(`the count-in can be tapped through (${skipped}ms)`);
           }
