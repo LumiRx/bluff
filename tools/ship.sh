@@ -289,7 +289,9 @@ fi
 # The `method` value was renamed in Xcode 15.3: "app-store" became
 # "app-store-connect", and the old name is accepted but warns. Write whichever
 # this Xcode wants rather than guessing.
-XCVER=$(xcodebuild -version | head -1 | awk '{print $2}')
+# awk reads to EOF: 'head -1' closes the pipe early and, under pipefail, the
+# SIGPIPE it hands xcodebuild aborts the whole script right after the archive.
+XCVER=$(xcodebuild -version | awk 'NR==1{print $2}')
 METHOD=$(node -p "
   const [maj, min = 0] = String(process.argv[1]).split('.').map(Number);
   (maj > 15 || (maj === 15 && min >= 3)) ? 'app-store-connect' : 'app-store'" "$XCVER")

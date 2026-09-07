@@ -67,6 +67,17 @@ async function bump(env, k) {
 
 export function onRequestGet() { return json({ error: 'post an email address' }, 405); }
 
+// the iOS shell posts from capacitor://localhost, so the endpoint answers the
+// preflight and names an origin. It is a public capture form with no cookies
+// and no credentials, so the origin is anyone.
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'content-type',
+  'Access-Control-Max-Age': '86400'
+};
+export function onRequestOptions() { return new Response(null, { status: 204, headers: CORS }); }
+
 const json = (o, status = 200) => new Response(JSON.stringify(o), {
-  status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+  status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...CORS }
 });

@@ -985,6 +985,11 @@ html.marks .tile,html.marks .mini i,html.marks .k{position:relative}
 .chip.green{background:#8fa0b5;box-shadow:0 2px 0 #5d687c,0 0 0 1px rgba(0,0,0,.18) inset;color:#141a24}
 .chip.star{background:var(--cream);box-shadow:0 2px 0 #b77e38,0 0 0 1px rgba(0,0,0,.18) inset;color:#141a24}
 @media (prefers-reduced-motion:reduce){.tile,.key,.btn,#ovC,#tellBar .mini i,.foldrule,#foldB::before{animation:none!important;transition:none!important}}
+.seatask{margin:12px 0 2px;text-align:left}
+.seatask .row{gap:8px;align-items:stretch}
+.seatask input{flex:1;min-width:0;text-transform:none;letter-spacing:.02em;font-size:15px;text-align:left}
+.seatask .btn{flex:0 0 auto;padding:12px 16px}
+.seatask .alt2{margin-top:8px}
 </style>
 </head>
 <body>
@@ -7603,6 +7608,61 @@ function entryLine(){
     +"Top three score — final at midnight UTC.</em></div>";
 }
 
+/* ── keep your seat ──
+   The one ask the app makes: an address, posted to the same capture endpoint
+   the site uses, tagged so app signups count on their own line. No account,
+   no password, no third party — the endpoint writes to our own KV and the
+   privacy policy promises exactly that. Shown after a hand, dismissible, at
+   most once a day, and it stops the moment it has worked. */
+const SEAT_URL="https://webluff.com/api/notify";
+function seatKept(){return !!(P.seat&&P.seat.email);}
+function seatAskCard(always){
+  if(seatKept())return always?"<div class='sect'>YOUR SEAT</div><p class='fine'>Kept. Nobody but the table has your address.</p>":"";
+  if(!always&&P.seat&&P.seat.askedDay===todayKey())return "";
+  return "<div class='seatask' id='seatAsk'><div class='sect'>KEEP YOUR SEAT</div>"
+   +"<p class='fine'>One line, no password. We write when a new edition deals \u2014 and never otherwise.</p>"
+   +"<div class='row'><input id='seatMail' type='email' inputmode='email' autocomplete='email' autocapitalize='off' spellcheck='false' placeholder='you@somewhere.com'>"
+   +"<button class='btn' id='seatGo'>KEEP IT</button></div>"
+   +(always?"":"<button class='alt2' id='seatNo'>not now</button>")+"</div>";
+}
+function wireSeatAsk(){
+  const box=$("seatAsk");if(!box)return;
+  P.seat=P.seat||{};
+  if(P.seat.askedDay!==todayKey()){P.seat.askedDay=todayKey();saveP();}
+  const no=$("seatNo");if(no)no.onclick=()=>{box.remove();};
+  const inp=$("seatMail"),go=$("seatGo");
+  inp.onkeydown=e=>{if(e.key==="Enter")go.click();};
+  go.onclick=async()=>{
+    const v=String(inp.value||"").trim().toLowerCase();
+    if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v))return toast("that does not look like an address");
+    go.disabled=true;go.textContent="KEEPING\u2026";
+    try{
+      const plat=(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform())||"web";
+      const r=await fetch(SEAT_URL,{method:"POST",headers:{"content-type":"application/json"},
+        body:JSON.stringify({email:v,utm_source:"app",utm_medium:plat})});
+      const j=await r.json().catch(()=>({}));
+      if(!r.ok||!j.ok)throw new Error(j.error||"no");
+      P.seat.email=v;P.seat.at=Date.now();saveP();hap("medium");
+      box.innerHTML="<div class='sect'>YOUR SEAT</div><p class='fine'>Kept. Nobody but the table has your address.</p>";
+    }catch(e){
+      go.disabled=false;go.textContent="KEEP IT";
+      toast("that address didn\u2019t take \u2014 try again");
+    }
+  };
+}
+/* the rating ask: after the third completed daily, once, and only where the
+   native review sheet exists. Never a custom dialog, never a nag. */
+function noteDailyDone(){
+  P.daily.days=P.daily.days||{};
+  if(P.daily.days[todayKey()])return;
+  P.daily.days[todayKey()]=1;saveP();
+  if(Object.keys(P.daily.days).length>=3&&!P.ratedAsk){
+    const R=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.InAppReview;
+    if(!R)return;
+    P.ratedAsk=Date.now();saveP();
+    setTimeout(()=>{try{R.requestReview();}catch(e){}},1800);
+  }
+}
 function screenSummary(back){
   const s=S.session;
   const t=tierOf(P.rating);
@@ -7640,6 +7700,7 @@ function screenSummary(back){
    +"</div>"
    +bhead("FINAL STACKS","STARS")
    +"<div class='board'>"+rows+"</div>"
+   +seatAskCard()
    +"<div class='row'><button class='btn' id='sh'>SHARE</button>"
    +"<button class='btn alt' id='lb'>LADDER</button></div>"
    +"<div class='row'><button class='btn go' id='again'>"
@@ -7657,6 +7718,8 @@ function screenSummary(back){
   $("lb").onclick=()=>screenBoard(S.daily?"daily":"ladder");
   $("again").onclick=()=>startMatch(S.speed?"speed":"cash");
   $("home").onclick=screenHome;
+  wireSeatAsk();
+  if(S.daily&&!back)noteDailyDone();
 }
 
 /* ── overlay / help ── */
@@ -9117,6 +9180,7 @@ function screenProfile(){
    +(P.bigHand?"<div class='sect'>BIGGEST HAND</div><div class='hl'><b>"+P.bigHand.word+"</b>"
      +"<span>"+P.bigHand.rate+"% card · "+P.bigHand.callers+" called</span>"
      +"<u>+"+P.bigHand.take+"</u></div>":"")
+   +seatAskCard(true)
    +"<div class='sect'>YOUR CREST</div>"+facePicker(P.crest)
    +(CASH?"<div class='sect'>REGION</div>"
      +"<button class='cstrip' id='pgeo'><b>"+ico("globe")+" "+regionName().toUpperCase()+"</b>"
@@ -9143,6 +9207,7 @@ function screenProfile(){
    +"<div class='row'><button class='btn alt' id='wipe'>RESET CAREER</button>"
    +"<button class='btn' id='bk'>BACK</button></div>",true);
   wireFaces(f=>{P.crest=f;saveP();applyCosmetics();});
+  wireSeatAsk();
   if($("pgeo"))$("pgeo").onclick=()=>screenGate(true);
   $("prls").onclick=()=>screenLegal("rules",screenProfile);
   $("prp").onclick=()=>screenLegal("play",screenProfile);

@@ -1,6 +1,6 @@
 {
   "name": "bluff",
-  "version": "3.1.1",
+  "version": "1.1.0",
   "description": "BLUFF — poker structure, word deduction",
   "private": true,
   "scripts": {
@@ -14,6 +14,7 @@
     "test": "node test.js && node flow.js && node audio.js && node fit.js && node store.js && node home.js && node items.js && node muck.js && node clock.js && node chest.js"
   },
   "devDependencies": {
+    "@capacitor-community/in-app-review": "^6.0.0",
     "@capacitor/android": "^6.2.0",
     "@capacitor/cli": "^6.2.0",
     "@capacitor/core": "^6.2.0",
@@ -23,5 +24,8 @@
     "@capacitor/splash-screen": "^6.0.3",
     "@capacitor/status-bar": "^6.0.2",
     "playwright": "^1.62.1"
+  },
+  "dependencies": {
+    "cordova-plugin-purchase": "^13.18.0"
   }
 }
