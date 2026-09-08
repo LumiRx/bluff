@@ -990,6 +990,40 @@ html.marks .tile,html.marks .mini i,html.marks .k{position:relative}
 .seatask input{flex:1;min-width:0;text-transform:none;letter-spacing:.02em;font-size:15px;text-align:left}
 .seatask .btn{flex:0 0 auto;padding:12px 16px}
 .seatask .alt2{margin-top:8px}
+#kb,.key{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#kb{transition:opacity var(--d-base) var(--e-out)}
+#kb.off{opacity:.38;pointer-events:none}
+/* table talk */
+#talk{position:absolute;inset:0;pointer-events:none;z-index:6}
+.say{position:absolute;opacity:0;max-width:150px;transform:translate(-50%,-100%) translateY(-34px) scale(.85);
+  background:var(--cream);color:#141a24;font-size:11px;font-weight:600;letter-spacing:.02em;line-height:1.25;
+  padding:5px 9px;border-radius:10px;white-space:normal;text-align:center;box-shadow:0 2px 0 rgba(0,0,0,.35);
+  transition:transform var(--d-base) var(--e-spring),opacity var(--d-base) var(--e-out)}
+.say::after{content:"";position:absolute;left:50%;bottom:-4px;width:9px;height:9px;background:inherit;transform:translateX(-50%) rotate(45deg)}
+.say.below{transform:translate(-50%,0) translateY(34px) scale(.85)}
+.say.below::after{bottom:auto;top:-4px}
+.say.right{transform:translate(0,-50%) translateX(30px) scale(.85);max-width:120px}
+.say.right::after{left:-4px;bottom:auto;top:50%;transform:translateY(-50%) rotate(45deg)}
+.say.left{transform:translate(-100%,-50%) translateX(-30px) scale(.85);max-width:120px}
+.say.left::after{left:auto;right:-4px;bottom:auto;top:50%;transform:translateY(-50%) rotate(45deg)}
+.say.on{opacity:1;transform:translate(-50%,-100%) translateY(-38px) scale(1)}
+.say.below.on{transform:translate(-50%,0) translateY(38px) scale(1)}
+.say.right.on{transform:translate(0,-50%) translateX(34px) scale(1)}
+.say.left.on{transform:translate(-100%,-50%) translateX(-34px) scale(1)}
+.say.you{background:var(--gold)}
+.say.gone{opacity:0;transition:opacity 300ms var(--e-out)}
+.talkbar{display:flex;gap:4px;justify-content:center;margin:4px 0 0}
+body.typing .talkbar{display:none}
+#trayHint.quiet{display:none}
+.talkbar .rx{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex:1 1 0;min-width:0;height:30px;padding:0;
+  border-radius:8px;background:transparent;border:1px solid var(--line);color:var(--dim);cursor:pointer;font-family:inherit;
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+  transition:transform var(--d-fast) var(--e-out),border-color var(--d-fast) var(--e-out),color var(--d-fast) var(--e-out)}
+.talkbar .rx svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.talkbar .rx span{font-size:7.5px;letter-spacing:.08em;font-weight:700}
+.talkbar .rx:active{transform:translateY(1px);border-color:var(--gold);color:var(--cream)}
+@media(max-height:670px){.talkbar .rx{height:24px}.talkbar .rx span{display:none}}
+@media (prefers-reduced-motion:reduce){.say{transition:none!important}}
 </style>
 </head>
 <body>
@@ -5534,8 +5568,12 @@ const Snd={
   },
   ready(){
     if(P&&P.mute)return null;
-    const c=this.boot();if(!c)return null;
-    if(c.state==="suspended")c.resume();
+    let c=this.boot();if(!c)return null;
+    /* iOS parks the context in "interrupted" after a call, Siri or a trip to the
+       background, and "closed" after a media-session teardown. Resume from any
+       non-running state; rebuild from a closed one. */
+    if(c.state==="closed"){this.ctx=null;this.master=null;c=this.boot();if(!c)return null;}
+    if(c.state!=="running"){try{const p=c.resume();if(p&&p.catch)p.catch(()=>{});}catch(e){}}
     return c;
   },
   /* one shaped tone */
@@ -6174,6 +6212,17 @@ addEventListener("visibilitychange",()=>{
   document.hidden?Mus.stop():(Mus.wanted()&&Snd.ctx&&Mus.start());
 });
 
+/* Every sound is fire-and-forget. A throw inside Web Audio -- an interrupted
+   context, a node the OS refused -- must never reach the caller, because the
+   caller is the keyboard, the fold, the reveal. Same for the music. */
+(function armour(obj){
+  Object.keys(obj).forEach(k=>{const f=obj[k];if(typeof f!=="function")return;
+    obj[k]=function(){try{return f.apply(this,arguments);}catch(e){return undefined;}};});
+})(Snd);
+if(typeof Mus!=="undefined"&&Mus&&typeof Mus==="object")(function armour(obj){
+  Object.keys(obj).forEach(k=>{const f=obj[k];if(typeof f!=="function")return;
+    obj[k]=function(){try{return f.apply(this,arguments);}catch(e){return undefined;}};});
+})(Mus);
 Snd.arm();
 /* one soft click under every button in the game, wired once at the root */
 addEventListener("pointerdown",e=>{
@@ -6326,6 +6375,122 @@ const SEATPOS=[[50,86],[13,64],[19,16],[50,6],[81,16],[87,64]];
 const POTPOS=[50,44];
 let lastChips={};
 
+/* ══════════ TABLE TALK ══════════
+   The table talks. The regulars react to what you do, each in their own voice
+   -- every line is written here, none is ever typed by a player, so nothing a
+   person types can reach another person. You answer with a fixed set of five
+   reactions, drawn not typed, and the regulars answer back. Cosmetic only:
+   Talk never touches the seeded randomness, so two people on the same deals
+   still get the same deals. Quiet under automation unless window.__talkAlways. */
+const TALK_STYLE={tricky:{chat:2.2,lag:[700,1500]},tight:{chat:.6,lag:[1200,2400]},solid:{chat:1,lag:[900,1900]},loose:{chat:3,lag:[350,900]}};
+const TALK_LINES={
+ you_fold:{tricky:["Folding on me already?","Saw something you didn't like?","Fold now, wonder later."],tight:["Wise.","Thin clue. I'd have folded too.","Nothing wrong with that."],solid:["Fair. That clue was thin.","Kept your stars. Fine.","Reasonable."],loose:["Come on. It was right there.","Scared of a word?","Boring!"]},
+ you_call:{tricky:["Brave.","Let's see what you've got.","Go on then."],tight:["Hm.","Your stars."],solid:["Good luck. You'll want two.","Let's see it."],loose:["Here we go.","Yes! Company.","Right behind you."]},
+ you_crack:{tricky:["Lucky.","Fine. That was good.","I'd have got there."],tight:["Well read.","Clean."],solid:["Clean.","There it is.","Good read."],loose:["Oh come ON.","Show-off.","How?!"]},
+ you_late:{tricky:["Late.","Free swing. Doesn't count."],tight:["Late."],solid:["Late, but you got there."],loose:["Ha. Too slow."]},
+ you_miss:{tricky:["It's a hard word. That's the point.","Told you it was a trap."],tight:["That's why you fold.","Costly."],solid:["Happens.","Next hand."],loose:["Ha! Told you.","Ouch.","Should've folded, friend."]},
+ bot_call:{tricky:["In.","I like this one."],tight:["In."],solid:["I'll take it.","In."],loose:["Let's go!","In, in, in.","Easy."]},
+ bot_fold:{tricky:["Not this one.","Nice try."],tight:["No.","Pass."],solid:["I'll watch.","Not for that."],loose:["Nope.","Ugh. Fine.","Next."]},
+ bot_crack:{tricky:["Was that meant to be hard?","Told you.","Too easy."],tight:["Two.","Done."],solid:["There it is.","Got it.","Fair word."],loose:["YES.","Get in!","Ha ha!"]},
+ bot_late:{tricky:["Late. Still got it."],tight:["Late."],solid:["Late. Nothing to show."],loose:["Aw. Late."]},
+ bot_miss:{tricky:["Fine. Fine.","A trap. I said so."],tight:["Should have folded.","Costly."],solid:["Next hand.","Well set."],loose:["Rigged.","What IS that word?","No way."]},
+ setter_holds:{tricky:["Told you.","Nobody. Not one.","Pick on someone else."],tight:["Good word."],solid:["Good word, if I say so.","Held."],loose:["Ha! Nobody!","My word!"]},
+ setter_cracked:{tricky:["Too easy. Noted.","Enjoy it."],tight:["Noted."],solid:["Fair enough.","Good reads."],loose:["Come ON.","Rigged.","Next time."]},
+ you_held:{tricky:["Fine. Good word.","You got lucky with that one."],tight:["Good word."],solid:["Well set.","Nobody had it."],loose:["What was THAT?","Cruel."]},
+ you_got_cracked:{tricky:["Thanks for the stars.","That clue gave it away."],tight:["Too generous."],solid:["Told too much."],loose:["Easy!","Ha! Thanks!"]},
+ item_scram:{tricky:["Enjoy.","Find your letters now."],tight:["Sorry."],solid:["Nothing personal."],loose:["Let's see you type now!","Whee!"]},
+ item_gift:{tricky:["Here. Don't waste it.","A gift. Remember it."],tight:["Take it."],solid:["Here. Use it."],loose:["Present!","Be nice to me later."]},
+ item_hint:{tricky:["Just a peek."],tight:["Hm."],solid:["Checking something."],loose:["Little help!"]},
+ item_swap:{tricky:["New word. Everyone starts over.","Didn't like that one."],tight:["Swap."],solid:["Fresh word. Same clue."],loose:["Reset! Ha!"]},
+ re_calledit:{tricky:["Then call it next time.","Sure you did."],tight:["Noted."],solid:["Then we agree."],loose:["Ha! Sure."]},
+ re_nochance:{tricky:["We'll see.","Watch me."],tight:["We'll see."],solid:["Maybe."],loose:["Oh, we'll see!"]},
+ re_respect:{tricky:["Noted.","Careful, I'll get used to it."],tight:["Noted."],solid:["Likewise."],loose:["Aw. Thanks!"]},
+ re_ouch:{tricky:["It's a hard game."],tight:["Yes."],solid:["Happens to all of us."],loose:["Ouch is right."]},
+ re_bluff:{tricky:["Prove it.","Then call.","Everything's a bluff."],tight:["Maybe."],solid:["Call and find out."],loose:["Me? Never!"]}
+};
+const TALK_P={you_fold:.6,you_call:.35,you_crack:.75,you_late:.45,you_miss:.7,bot_call:.22,bot_fold:.28,bot_crack:.65,bot_late:.35,bot_miss:.5,setter_holds:.9,setter_cracked:.7,you_held:.8,you_got_cracked:.75,item_scram:1,item_gift:1,item_hint:.6,item_swap:1};
+const TALK_LABEL={calledit:"CALLED IT",nochance:"NO CHANCE",respect:"RESPECT",ouch:"OUCH",bluff:"BLUFF!"};
+const TALK_MARKS={
+ calledit:"<svg viewBox='0 0 20 20'><circle cx='10' cy='10' r='7.5'/><path d='M6.5 10.2l2.3 2.3 4.7-5'/></svg>",
+ nochance:"<svg viewBox='0 0 20 20'><circle cx='10' cy='10' r='7.5'/><path d='M5.5 14.5l9-9'/></svg>",
+ respect:"<svg viewBox='0 0 20 20'><circle cx='10' cy='7.5' r='4.5'/><path d='M7.2 11.5l-1.7 5.5 4.5-2 4.5 2-1.7-5.5'/></svg>",
+ ouch:"<svg viewBox='0 0 20 20'><rect x='3.5' y='3.5' width='13' height='13' rx='2'/><path d='M10 3.5l-2 4 3 2.5-2.5 3.5 1.5 3'/></svg>",
+ bluff:"<svg viewBox='0 0 20 20'><path d='M2.5 10s3-5 7.5-5 7.5 5 7.5 5-3 5-7.5 5-7.5-5-7.5-5z'/><circle cx='10' cy='10' r='2.4'/></svg>"};
+const Talk={
+  busyUntil:0,lastBy:{},reactAt:0,
+  enabled(){return !(P&&P.quiet)&&!(navigator.webdriver===true&&!window.__talkAlways);},
+  layer(){const t=$("table");if(!t)return null;let l=$("talk");
+    if(!l){l=document.createElement("div");l.id="talk";t.appendChild(l);}return l;},
+  styleOf(s){if(!s||s.you)return "you";const r=ROSTER.find(x=>x[0]===s.name);return r?r[2]:"solid";},
+  bubble(i,text,who){
+    const l=this.layer();if(!l)return;const pos=SEATPOS[i];if(!pos)return;
+    const old=l.querySelector("[data-seat='"+i+"']");if(old)old.remove();
+    const d=document.createElement("div");
+    const side=pos[0]<35?" right":pos[0]>65?" left":pos[1]<50?" below":"";
+    d.className="say"+(who==="you"?" you":"")+side;
+    d.dataset.seat=i;d.style.left=pos[0]+"%";d.style.top=pos[1]+"%";
+    d.textContent=text;l.appendChild(d);
+    requestAnimationFrame(()=>d.classList.add("on"));
+    setTimeout(()=>{d.classList.remove("on");d.classList.add("gone");setTimeout(()=>d.remove(),320);},2600);
+  },
+  pick(prefer){
+    if(prefer&&!prefer.you)return prefer;
+    const now=Date.now();
+    const c=(S.seats||[]).filter(x=>!x.you&&(now-(this.lastBy[x.name]||0))>6000);
+    if(!c.length)return null;
+    let tot=0;const w=c.map(x=>{const v=(TALK_STYLE[this.styleOf(x)]||TALK_STYLE.solid).chat;tot+=v;return v;});
+    let r=Math.random()*tot;for(let k=0;k<c.length;k++){r-=w[k];if(r<=0)return c[k];}return c[c.length-1];
+  },
+  line(ev,st){const L=TALK_LINES[ev];if(!L)return null;const a=L[st]||L.solid;return a[Math.floor(Math.random()*a.length)];},
+  on(ev,actor,opts){
+    if(!this.enabled()||!S.seats)return;
+    const now=Date.now();
+    if(!window.__talkAlways){
+      if(now<this.busyUntil)return;
+      if(Math.random()>(TALK_P[ev]==null?.5:TALK_P[ev]))return;
+      const cd=$("cd");if(cd&&cd.classList.contains("on"))return;
+    }
+    const who=this.pick(actor);if(!who)return;
+    const st=this.styleOf(who),text=this.line(ev,st);if(!text)return;
+    const lag=(opts&&opts.lag!=null)?opts.lag:(TALK_STYLE[st]||TALK_STYLE.solid).lag;
+    const wait=Array.isArray(lag)?lag[0]+Math.random()*(lag[1]-lag[0]):lag;
+    this.busyUntil=now+wait+2400;this.lastBy[who.name]=now+wait;
+    setTimeout(()=>{if(S.seats&&S.seats[who.i]===who)this.bubble(who.i,text);},wait);
+  },
+  showdown(setter,callers){
+    if(!this.enabled()||!callers.length)return;
+    const crk=callers.filter(x=>x.cracked).length;
+    if(setter.you)this.on(crk?"you_got_cracked":"you_held",null,{lag:1300});
+    else this.on(crk?"setter_cracked":"setter_holds",setter,{lag:1300});
+  },
+  react(kind){
+    if(!S.seats)return;
+    const now=Date.now();if(now<this.reactAt)return;this.reactAt=now+1800;
+    this.bubble(0,TALK_LABEL[kind],"you");hap("medium");Snd.key();
+    const setter=S.seats[S.button];
+    const target=kind==="bluff"&&setter&&!setter.you?setter:null;
+    if(Math.random()<(kind==="bluff"?.9:.6))this.on("re_"+kind,target,{lag:[900,1700]});
+  }
+};
+function talkBarHTML(){
+  return "<div id='talkBar' class='talkbar'>"+Object.keys(TALK_LABEL).map(k=>
+    "<button class='rx' data-rx='"+k+"' aria-label='"+TALK_LABEL[k]+"'>"+TALK_MARKS[k]+"<span>"+TALK_LABEL[k]+"</span></button>").join("")+"</div>";
+}
+function talkBarState(){
+  const kb=$("kb"),typing=!!(kb&&S.phase==="play"&&!kb.classList.contains("off"));
+  document.body.classList.toggle("typing",typing);
+  const h=$("trayHint");if(h)h.classList.toggle("quiet",!!($("talkBar")&&!S.arm&&!typing));
+}
+function mountTalkBar(){
+  if(!Talk.enabled())return;
+  talkBarState();
+  const h=$("trayHint");if(!h||$("talkBar"))return;
+  h.insertAdjacentHTML("afterend",talkBarHTML());
+  [...document.querySelectorAll("#talkBar .rx")].forEach(b=>{
+    b.onpointerdown=e=>{e.preventDefault();Talk.react(b.dataset.rx);};b.onclick=e=>e.preventDefault();});
+  talkBarState();
+}
+const __drawTray=drawTray;drawTray=function(){const r=__drawTray.apply(this,arguments);mountTalkBar();return r;};
 function drawTable(){
   if(!S.seats)return;
   const t=$("table");
@@ -6698,8 +6863,7 @@ function scrambleKeyboard(ms){
   const sh=orig.slice();
   for(let i=sh.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));
     const t=sh[i];sh[i]=sh[j];sh[j]=t;}
-  const put=arr=>keys.forEach((k,i)=>{k.textContent=arr[i];k.dataset.k=arr[i];
-    k.onclick=()=>press(arr[i]);});
+  const put=arr=>keys.forEach((k,i)=>{k.textContent=arr[i];k.dataset.k=arr[i];});
   put(sh);paintKb();
   eventBanner(ico("scram")+" KEYBOARD SCRAMBLED",
     "Your keys have moved. They still type what they say — you just have to find them.",2600);
@@ -6725,17 +6889,17 @@ function botItemTick(){
     if(rnd()>.42)return;
     const k=b.items[Math.floor(rnd()*b.items.length)];
     if(k==="scram"&&me.state==="call"&&!me.cracked&&me.guesses.length<GUESSES){
-      spendItem(b,k);scrambleKeyboard(6000);
+      spendItem(b,k);scrambleKeyboard(6000);Talk.on("item_scram",b,{lag:200});
       toast(b.name+" scrambled your keyboard",2600);
     }else if(k==="gift"&&me.state==="call"&&!me.cracked){
       const p=unknownLetter(S.word,me);
-      if(p!=null){spendItem(b,k);applyLetter(me,p,b.name);}
+      if(p!=null){spendItem(b,k);applyLetter(me,p,b.name);Talk.on("item_gift",b,{lag:200});}
     }else if(k==="hint"){
-      spendItem(b,k);
+      spendItem(b,k);Talk.on("item_hint",b,{lag:200});
       const p=unknownLetter(S.word,b);
       if(p!=null)applyLetter(b,p,null);
     }else if(k==="swap"&&b.guesses.length>=2){
-      spendItem(b,k);doWordSwap(b.name);
+      spendItem(b,k);doWordSwap(b.name);Talk.on("item_swap",b,{lag:200});
     }
   });
 }
@@ -6920,7 +7084,7 @@ function stepAction(){
   if(s.you){S.awaitingHuman=true;return humanAction(s);}
   setTimeout(()=>{
     const call=botDecides(s);
-    s.state=call?"call":"fold";
+    s.state=call?"call":"fold";Talk.on(call?"bot_call":"bot_fold",s);
     if(call){s.chips-=S.stake;S.pot+=S.stake;betAnim(s.i,S.stake);}
     s.acting=false;S.oi++;drawTable();stepAction();
   },520+rnd()*520);
@@ -6978,8 +7142,8 @@ function humanAction(s){
     "<button class='btn dan' id='foldB'>FOLD<small>keep your stars</small></button>"
    +"<button class='btn go' id='callB'>CALL "+S.stake+"<small>play the hand</small></button>";
   holdToFold($("foldB"),()=>{S.awaitingHuman=false;s.state="fold";s.acting=false;S.oi++;
-    Snd.fold();hap("heavy");foldRitual(()=>{drawTable();stepAction();});});
-  $("callB").onclick=()=>{S.awaitingHuman=false;s.state="call";s.chips-=S.stake;S.pot+=S.stake;
+    Snd.fold();hap("heavy");Talk.on("you_fold");foldRitual(()=>{drawTable();stepAction();});});
+  $("callB").onclick=()=>{S.awaitingHuman=false;s.state="call";s.chips-=S.stake;S.pot+=S.stake;Talk.on("you_call");
     betAnim(0,S.stake);s.acting=false;S.oi++;drawTable();stepAction();};
   drawTray();
   if(S.tutorial)$("actP").insertAdjacentHTML("beforeend",
@@ -7119,7 +7283,7 @@ function buildBoard(){
 }
 const KB=["QWERTYUIOP","ASDFGHJKL","↵ZXCVBNM⌫"];
 function buildKb(){
-  const k=$("kb");k.innerHTML="";
+  const k=$("kb");k.innerHTML="";k.classList.remove("off");
   KB.forEach(r=>{
     const d=document.createElement("div");d.className="krow";
     r.split("").forEach(c=>{
@@ -7127,7 +7291,12 @@ function buildKb(){
       b.className="key"+(c==="↵"||c==="⌫"?" wide":"");
       b.textContent=c==="↵"?"ENTER":c;
       b.dataset.k=c;
-      b.onclick=()=>press(c==="↵"?"ENTER":c==="⌫"?"BACK":c);
+      /* pointerdown, not click: iOS cancels a click when the finger slides a few
+         pixels, which fast typing does constantly, and click waits for the tap to
+         end. The key is read at press time so a scrambled keyboard stays honest. */
+      b.onpointerdown=e=>{if(e.pointerType==="mouse"&&e.button!==0)return;e.preventDefault();
+        const kk=b.dataset.k;press(kk==="↵"?"ENTER":kk==="⌫"?"BACK":kk);};
+      b.onclick=e=>e.preventDefault();
       d.appendChild(b);
     });
     k.appendChild(d);
@@ -7136,9 +7305,15 @@ function buildKb(){
 function press(k){
   if(S.phase!=="play")return;
   const me=S.seats[0];if(me.cracked||me.guesses.length>=GUESSES)return;
-  if(k==="BACK"){S.cur=S.cur.slice(0,-1);paintRow();return;}
+  if(k==="BACK"){S.cur=S.cur.slice(0,-1);paintRow();Snd.key();return;}
   if(k==="ENTER")return submit();
-  if(S.cur.length<S.word.length&&/^[A-Z]$/.test(k)){S.cur+=k;Snd.key();hap("light");paintRow();}
+  if(!/^[A-Z]$/.test(k))return;
+  /* a full row never goes dead: the next letter replaces the last one, so a
+     refused word can be corrected without hunting for the delete key. The row
+     paints before the sound plays -- the letter is the point, the click is not. */
+  if(S.cur.length>=S.word.length)S.cur=S.cur.slice(0,-1)+k;else S.cur+=k;
+  const row=$("r"+S.row);if(row)row.classList.remove("bad");
+  paintRow();Snd.key();hap("light");
 }
 function paintRow(){
   const row=$("r"+S.row);if(!row)return;
@@ -7176,11 +7351,11 @@ function submit(){
   if(solved){
     me.cracked=true;
     me.won=me.guesses.length<=BET;
-    me.state=me.won?"crack":"late";
+    me.state=me.won?"crack":"late";Talk.on(me.won?"you_crack":"you_late");
     setTimeout(()=>Snd.crack(),470);
     return setTimeout(checkDone,700);
   }
-  if(S.row>=GUESSES){me.state="bust";setTimeout(()=>Snd.bust(),470);
+  if(S.row>=GUESSES){me.state="bust";Talk.on("you_miss");setTimeout(()=>Snd.bust(),470);
     return setTimeout(checkDone,700);}
 }
 function paintKb(){
@@ -7188,6 +7363,10 @@ function paintKb(){
     const s=kbState[b.dataset.k];
     b.className="key"+(b.dataset.k==="↵"||b.dataset.k==="⌫"?" wide":"")+(s?" "+s:"");
   });
+  /* a keyboard that cannot type says so, instead of sitting there looking live */
+  const kb=$("kb"),me=S.seats&&S.seats[0];
+  if(kb)kb.classList.toggle("off",!!(S.phase!=="play"||!me||me.cracked||me.guesses.length>=GUESSES));
+  if(typeof talkBarState==="function")talkBarState();
 }
 function botTick(){
   const now=Date.now();
@@ -7207,8 +7386,8 @@ function botTick(){
     const r=evaluate(g,S.word);
     b.guesses.push(g);b.marks.push(r);b.last=g;
     if(g===S.word){b.cracked=true;b.won=b.guesses.length<=BET;
-      b.state=b.won?"crack":"late";}
-    else if(b.guesses.length>=GUESSES)b.state="bust";
+      b.state=b.won?"crack":"late";Talk.on(b.won?"bot_crack":"bot_late",b);}
+    else if(b.guesses.length>=GUESSES){b.state="bust";Talk.on("bot_miss",b);}
     });
   });
   drawRivals();updateHeat();botItemTick();clockTick();
@@ -7277,6 +7456,7 @@ function showdown(){
   S.phase="showdown";clearInterval(S.tick);
   const setter=S.seats[S.button];
   const callers=S.seats.filter(x=>["call","crack","late","bust"].indexOf(x.state)>-1);
+  Talk.showdown(setter,callers);
   let net=ANTE*(SEATS-1);           /* antes already in the pot, all to the setter */
   let cracked=0;
   callers.forEach(s=>{
@@ -9192,6 +9372,8 @@ function screenProfile(){
    +"<i></i></button>"
    +"<button class='toggle"+(P.noMusic||P.mute?"":" on")+"' id='pmus'><b>"
    +(P.noMusic?"OFF":"ON")+"</b><span>the background track</span><i></i></button>"
+   +"<button class='toggle"+(P.quiet?"":" on")+"' id='ptalk'><b>"
+   +(P.quiet?"OFF":"ON")+"</b><span>table talk \u2014 the regulars talk back</span><i></i></button>"
    +"<button class='toggle"+(P.marks!==false?" on":"")+"' id='pmk'><b>"
    +(P.marks!==false?"ON":"OFF")+"</b><span>shapes on the tiles as well as colour</span>"
    +"<i></i></button>"
@@ -9217,6 +9399,11 @@ function screenProfile(){
     this.classList.toggle("on",!P.mute);
     this.querySelector("b").textContent=P.mute?"OFF":"ON";
     if(!P.mute)Snd.stars(600);
+  };
+  if($("ptalk"))$("ptalk").onclick=function(){
+    P.quiet=!P.quiet;saveP();
+    this.classList.toggle("on",!P.quiet);
+    this.querySelector("b").textContent=P.quiet?"OFF":"ON";
   };
   $("pmk").onclick=function(){
     P.marks=(P.marks===false);saveP();applyMarks();
