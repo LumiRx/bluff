@@ -253,6 +253,9 @@ if [ -n "$EXPORT_ONLY" ]; then
   ARCHIVE=$(ls -td "$PWD"/build/*.xcarchive 2>/dev/null | head -1)
   [ -n "$ARCHIVE" ] || die "no archive in build/ to export — run without --export first"
   say "re-using $ARCHIVE"
+  # the binary carries the number it was archived with, not the one just stamped
+  BUILD=$(basename "$ARCHIVE" .xcarchive); BUILD=${BUILD#BLUFF-}
+  say "that archive is build $BUILD — the upload will carry that number"
 fi
 if [ -z "$EXPORT_ONLY" ]; then
 # The Podfile's post_install turns the module verifier off for the pod targets
