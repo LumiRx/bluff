@@ -1,0 +1,21 @@
+BLUFF is a daily word game. You are dealt a hand of four, five or six letters and decide whether to commit to a guess or fold.
+
+THERE IS NO MONEY IN THIS APP. No real-money wagering, no prizes, no cash-out, and no in-app purchases (none are configured on this record). "Stars" are a score. They can be spent only on cosmetic table looks and cannot be converted into anything.
+
+NO ADVERTISING. This build contains no advertising SDK, no advertising identifier and no App Tracking Transparency prompt. The privacy manifest declares NSPrivacyTracking = false with an empty tracking-domain list.
+
+THE OTHER FIVE SEATS ARE BOTS. There are no other human players, live or asynchronous, anywhere in the app.
+
+NO CHAT AND NO USER-GENERATED CONTENT. New in this version, the bots at the table show short speech bubbles ("Called it.", "No chance."). Every one of those lines is a fixed string compiled into the app binary; there is no server, no moderation queue and no other user behind them. The player can answer with one of five fixed reactions - CALLED IT, NO CHANCE, RESPECT, OUCH, BLUFF! - chosen from a bar of five buttons. There is no free-text field anywhere on the table, nothing a player types is ever shown to anyone else, and nothing is transmitted between users. The whole feature can be switched off in Settings.
+
+NO ACCOUNT IS REQUIRED and none is created unless the player asks for one. The app is fully playable from first launch with no sign-up, so there are no demo credentials to supply. Two optional things exist and neither gates any gameplay: (1) Settings > KEEP YOUR RECORD offers a phone sign-in, only so a record can move to a new phone; (2) an optional single email line, which is used to say when a new edition deals and for nothing else. Both are opt-in and both can be removed in the app.
+
+ACCOUNT DELETION / DATA ERASURE: Settings > Reset Career erases everything the app holds on the device, immediately and permanently. If the optional phone sign-in was used, Settings > DELETE ACCOUNT erases the server-side record and releases the handle.
+
+The only text a player can enter is a display handle, checked against a profanity list (with leetspeak folding) before it can appear on the public board.
+
+The daily board is a leaderboard on which players are ranked against one another. It has no entry fee and no prize of any kind.
+
+The app records anonymous first-party usage counts only, to its own server. No third-party SDKs, no cookies, no device identifiers and no cross-app tracking.
+
+All audio is synthesised at runtime. The answer list is 3,576 curated words, each shown at the end of a hand with its pronunciation and meaning; guesses are validated against a standard word list. No third-party content is included.
