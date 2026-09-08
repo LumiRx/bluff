@@ -7,7 +7,7 @@ export NODE_ENV=development          # this shell otherwise prunes devDependenci
 : > /tmp/roster.log
 echo "commit $(git rev-parse --short HEAD 2>/dev/null) · $(date -u +%FT%TZ) · version $(node -p "require('./package.json').version")" >> /tmp/roster.log
 for f in auth pay ledger econ signin board seat site test flow fit muck items store home clock chest \
-         kbtest talktest ritual seatask sweep2 sweepmatch addtest dbltap; do
+         kbtest talktest ritual seatask buttonsweep sweepmatch addtest dbltap; do
   s=$(date +%s); node $f.js > /tmp/suite-$f.log 2>&1; rc=$?; e=$(date +%s)
   echo "$f exit $rc $((e-s))s" >> /tmp/roster.log
 done
