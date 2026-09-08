@@ -181,7 +181,7 @@ html.standalone body{overflow-y:auto;-webkit-overflow-scrolling:touch}
 #board{display:grid;gap:4px;justify-content:center}
 .brow.given{margin-bottom:5px}
 .brow.free{margin-top:9px;position:relative}
-.brow.free::before{content:'FREE SWING \2014\A0NOTHING RIDES ON THIS ONE';position:absolute;top:-9px;left:0;right:0;text-align:center;font-size:6.5px;letter-spacing:.14em;color:#5d687c}
+.brow.free::before{content:'FREE SWING \2014\A0NOTHING RIDES ON THIS ONE';position:absolute;top:-9px;left:50%;transform:translateX(-50%);white-space:nowrap;text-align:center;font-size:6.5px;letter-spacing:.14em;color:#5d687c}
 .brow.free .tile{border-style:dotted}
 .brow.given .tile{border-style:dashed;border-color:#343f52;width:28px;height:28px;font-size:13px}
 .givenlbl{font-size:8px;letter-spacing:.16em;color:#5d687c;text-align:center}
@@ -525,6 +525,13 @@ html.marks .tile,html.marks .mini i,html.marks .k{position:relative}
   font-size:10.5px;font-weight:900;letter-spacing:.04em;line-height:1;
   border:1px solid rgba(255,255,255,.10);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 1px 3px rgba(0,0,0,.45)}
+.crest{position:relative;overflow:hidden;isolation:isolate}
+.crest[class*=" mk-"]::before{content:"";position:absolute;right:-24%;bottom:-24%;width:82%;height:82%;background:var(--cf);opacity:.15;z-index:-1;pointer-events:none}
+.crest.mk-dia::before{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.crest.mk-tri::before{clip-path:polygon(50% 0,100% 100%,0 100%)}
+.crest.mk-hex::before{clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)}
+.crest.mk-dot::before{border-radius:50%}
+.crest.mk-star::before{clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
 .crest.big{width:44px;height:44px;border-radius:13px;font-size:17px}
 .crest.xl{width:60px;height:60px;border-radius:17px;font-size:23px}
 /* Badges read as engraved rather than printed — a sticker is decoration, a
@@ -652,11 +659,11 @@ html.marks .tile,html.marks .mini i,html.marks .k{position:relative}
   text-align:left;margin:10px 0;font-size:12px;line-height:1.7;font-variant-numeric:tabular-nums}
 .card .cl{white-space:pre-wrap;word-break:break-word}
 .card .cl.big{font-size:21px;letter-spacing:.1em;color:var(--cream);margin:4px 0;font-weight:400}
-#hnd,#sgPh,#sgCode{width:100%;background:#121822;border:1px solid var(--line);border-radius:9px;padding:12px;
+#hnd,#sgPh,#sgCode,#fn,#jc{width:100%;background:#121822;border:1px solid var(--line);border-radius:9px;padding:12px;
   color:var(--cream);font-family:inherit;font-size:16px;font-weight:800;letter-spacing:.18em;
   text-align:center;margin-top:12px;outline:none}
-#hnd:focus,#sgPh:focus,#sgCode:focus{border-color:var(--gold)}
-#hnd::placeholder,#sgPh::placeholder,#sgCode::placeholder{color:#4c5565;font-weight:600;letter-spacing:.12em;font-size:12px}
+#hnd:focus,#sgPh:focus,#sgCode:focus,#fn:focus,#jc:focus{border-color:var(--gold)}
+#hnd::placeholder,#sgPh::placeholder,#sgCode::placeholder,#fn::placeholder,#jc::placeholder{color:#4c5565;font-weight:600;letter-spacing:.12em;font-size:12px}
 #sgPh{letter-spacing:.06em;font-weight:700}
 #sgCode{letter-spacing:.42em;font-size:22px;padding:14px 12px}
 /* ══════════ TABLE — rail, felt, betting line ══════════ */
@@ -744,7 +751,8 @@ html.marks .tile,html.marks .mini i,html.marks .k{position:relative}
 .seat.setter .ava .ring{border-color:var(--ringC);
   box-shadow:0 0 0 3px rgba(212,172,123,.20),0 0 16px rgba(212,172,123,.35)}
 .seat.acting .ava{transform:scale(1.10)}
-.seat.acting .ava .ring{border-color:var(--cream);animation:ping 1.05s infinite}
+.seat.acting .ava .ring{border-color:var(--cream);box-shadow:0 0 0 3px rgba(240,232,222,.16);animation:ping 1.05s infinite}
+.seat.out .ava .ring{border-style:dashed}
 .seat.callst .ava .ring{border-color:var(--hit)}
 .seat.crack .ava .ring{border-color:var(--hit);box-shadow:0 0 16px rgba(0,0,0,.35)}
 .seat.late .ava .ring{border-color:var(--near)}
@@ -866,8 +874,8 @@ html.marks .tile,html.marks .mini i,html.marks .k{position:relative}
 /* ── QR / invite ── */
 #qr{margin:12px auto;background:#f4efe6;padding:10px;border-radius:12px;width:fit-content;
   box-shadow:0 6px 20px rgba(0,0,0,.5);line-height:0}
-.code{font-size:31px;font-weight:900;letter-spacing:.28em;color:var(--gold);margin:6px 0 0;
-  text-shadow:0 0 18px rgba(212,172,123,.3)}
+.code{font-size:31px;font-weight:900;letter-spacing:.28em;color:var(--gold);margin:6px 0 0}
+.code.sm{font-size:15px;letter-spacing:.3em;margin:12px 0 2px;opacity:.8}
 .frlist{display:flex;flex-direction:column;gap:6px;margin:10px 0}
 .fr{display:flex;align-items:center;gap:9px;background:#121822;border:1px solid var(--line);
   border-radius:10px;padding:8px 10px;text-align:left}
@@ -990,6 +998,9 @@ html.marks .tile,html.marks .mini i,html.marks .k{position:relative}
 .seatask input{flex:1;min-width:0;text-transform:none;letter-spacing:.02em;font-size:15px;text-align:left}
 .seatask .btn{flex:0 0 auto;padding:12px 16px}
 .seatask .alt2{margin-top:8px}
+#seatMail{background:#121822;border:1px solid var(--line);border-radius:9px;padding:12px;color:var(--cream);font-family:inherit;font-weight:600;outline:none}
+#seatMail:focus{border-color:var(--gold)}
+#seatMail::placeholder{color:#4c5565;font-weight:500}
 #kb,.key{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 #kb{transition:opacity var(--d-base) var(--e-out)}
 #kb.off{opacity:.38;pointer-events:none}
@@ -1024,6 +1035,29 @@ body.typing .talkbar{display:none}
 .talkbar .rx:active{transform:translateY(1px);border-color:var(--gold);color:var(--cream)}
 @media(max-height:670px){.talkbar .rx{height:24px}.talkbar .rx span{display:none}}
 @media (prefers-reduced-motion:reduce){.say{transition:none!important}}
+/* ── table density (1.1.2). The top seat's bubble sits where the POINTS caption was — the
+   caption steps aside for it. Short phones drop seat names and the centre note; nothing
+   overprints the number and your own stack stays on the table. ── */
+#potLbl{transition:opacity var(--d-fast) var(--e-out)}
+#table.talk3 #potLbl{opacity:0}
+.say.s3.on{transform:translate(-50%,0) translateY(30px) scale(1)}
+@media(max-height:760px){.say.s3.on{transform:translate(-50%,0) translateY(22px) scale(1)}}
+@media(max-height:720px){
+  .seat .nm{display:none}
+  #centerNote{display:none}
+}
+@media(max-height:670px){
+  #table{aspect-ratio:1/.42}
+  #center{top:50%}
+  #potVal{font-size:18px}
+  .seat .ch{font-size:10px}
+  .seat.you{top:82%!important}
+  .seat.you .tag{display:none}
+  #trayHint{display:none}
+  #stage{gap:4px}
+  .rv{padding:2px 5px;min-width:46px}
+  .rv .n{margin-bottom:1px}
+}
 </style>
 </head>
 <body>
@@ -6297,10 +6331,14 @@ const CREST=[["#1b2a41","#f4efe6"],["#5c4426","#ecd9b0"],["#2b4560","#a9c6e4"],
   ["#54382a","#ddab8c"],["#2c3a4f","#aebdd6"],["#3d4428","#c6cf96"]];
 /* Two letters of the handle, on a colour that handle will always get. Same
    name, same crest, on every device and every board, forever. */
+/* the mark: six drawn shapes, chosen by the handle and never by the player, so two seats in
+   the same colour still read apart at a glance — and it survives greyscale. Colour is the
+   choice; the shape is the signature. */
+const CREST_MK=["","dia","tri","hex","dot","star"];
 function crestFor(name,cls,idx){
   const n=String(name||"?").toUpperCase().replace(/[^A-Z0-9]/g,"")||"?";
-  const c=CREST[(idx==null?hashStr(n):idx)%CREST.length];
-  return "<span class='crest "+(cls||"")+"' style='--cb:"+c[0]+";--cf:"+c[1]+"'>"
+  const h=hashStr(n),c=CREST[(idx==null?h:idx)%CREST.length],mk=CREST_MK[(h>>>5)%CREST_MK.length];
+  return "<span class='crest "+(cls||"")+(mk?" mk-"+mk:"")+"' style='--cb:"+c[0]+";--cf:"+c[1]+"'>"
     +n.slice(0,2)+"</span>";
 }
 const faceOf=n=>crestFor(n);
@@ -6427,7 +6465,8 @@ const Talk={
     const old=l.querySelector("[data-seat='"+i+"']");if(old)old.remove();
     const d=document.createElement("div");
     const side=pos[0]<35?" right":pos[0]>65?" left":pos[1]<50?" below":"";
-    d.className="say"+(who==="you"?" you":"")+side;
+    d.className="say"+(who==="you"?" you":"")+side+(i===3?" s3":"");
+    if(i===3){const t=$("table");if(t){t.classList.add("talk3");clearTimeout(this._t3);this._t3=setTimeout(()=>t.classList.remove("talk3"),2600);}}
     d.dataset.seat=i;d.style.left=pos[0]+"%";d.style.top=pos[1]+"%";
     d.textContent=text;l.appendChild(d);
     requestAnimationFrame(()=>d.classList.add("on"));
@@ -6911,7 +6950,7 @@ function startHand(){
   if(S.hand>=HANDS)return endGame();
   S.seats.forEach((s,i)=>{
     s.setter=(i===S.button);s.state="";s.guesses=[];s.marks=[];s.cracked=false;
-    s.acting=false;s.pool=null;s.nextAt=0;s.given=[];s.ticking=false;s.deadline=0;s.won=false;
+    s.acting=false;s.pool=null;s.last=null;s.nextAt=0;s.given=[];s.ticking=false;s.deadline=0;s.won=false;
     s.nextItem=0;
   });
   S.pot=0;S.word=null;S.tell=null;S.stake=0;S.card=null;S.settling=false;S.arm=null;
@@ -6972,7 +7011,7 @@ function phaseDeal(again){
     };
     c.appendChild(d);
   });
-  $("pickBtn").onclick=()=>{if(S.card){S.word=S.card;phaseTell();}};
+  $("pickBtn").onclick=()=>{if(S.card&&S.phase==="deal"){S.word=S.card;phaseTell();}};
   drawTray();
   centerNote("you are on<br>the button");
 }
@@ -7000,7 +7039,7 @@ function phaseTell(){
       d.classList.add("sel");S.tell=t;$("tellBtn").disabled=false;};
     box.appendChild(d);
   });
-  $("tellBtn").onclick=()=>{if(S.tell)phasePrice();};
+  $("tellBtn").onclick=()=>{if(S.tell&&S.phase==="tell")phasePrice();};
   centerNote("choose what<br>to give away");
 }
 
@@ -7025,7 +7064,7 @@ function phasePrice(){
       d.classList.add("sel");S.stake=v;$("goBtn").disabled=false;};
     box.appendChild(d);
   });
-  $("goBtn").onclick=()=>{if(S.stake){Snd.chime();phaseAction();}};
+  $("goBtn").onclick=()=>{if(S.stake&&S.phase==="price"){Snd.chime();phaseAction();}};
   centerNote("max swing<br>&plusmn;500");
 }
 
@@ -7083,6 +7122,7 @@ function stepAction(){
   S.seats.forEach(x=>x.acting=false);s.acting=true;drawTable();
   if(s.you){S.awaitingHuman=true;return humanAction(s);}
   setTimeout(()=>{
+    if(S.phase!=="action"||S.seats[S.order[S.oi]]!==s)return;   /* a stale chain — the table moved on */
     const call=botDecides(s);
     s.state=call?"call":"fold";Talk.on(call?"bot_call":"bot_fold",s);
     if(call){s.chips-=S.stake;S.pot+=S.stake;betAnim(s.i,S.stake);}
@@ -7141,9 +7181,11 @@ function humanAction(s){
   $("actR").innerHTML=
     "<button class='btn dan' id='foldB'>FOLD<small>keep your stars</small></button>"
    +"<button class='btn go' id='callB'>CALL "+S.stake+"<small>play the hand</small></button>";
-  holdToFold($("foldB"),()=>{S.awaitingHuman=false;s.state="fold";s.acting=false;S.oi++;
+  const actOnce=()=>{if(!S.awaitingHuman)return true;S.awaitingHuman=false;
+    [...document.querySelectorAll("#actR button")].forEach(b=>b.disabled=true);return false;};
+  holdToFold($("foldB"),()=>{if(actOnce())return;s.state="fold";s.acting=false;S.oi++;
     Snd.fold();hap("heavy");Talk.on("you_fold");foldRitual(()=>{drawTable();stepAction();});});
-  $("callB").onclick=()=>{S.awaitingHuman=false;s.state="call";s.chips-=S.stake;S.pot+=S.stake;Talk.on("you_call");
+  $("callB").onclick=()=>{if(actOnce())return;s.state="call";s.chips-=S.stake;S.pot+=S.stake;Talk.on("you_call");
     betAnim(0,S.stake);s.acting=false;S.oi++;drawTable();stepAction();};
   drawTray();
   if(S.tutorial)$("actP").insertAdjacentHTML("beforeend",
@@ -7198,6 +7240,7 @@ function countIn(then){
 /* ── phase 5: play the hand ── */
 let kbState={};
 function phasePlay(){
+  if(S.phase!=="action")return;             /* only the action phase leads here, and only once */
   S.phase="play";
   const me=S.seats[0];
   const iPlay=me.state==="call";
@@ -7232,6 +7275,7 @@ function phasePlay(){
     b.rng=S.daily?mulberry32(hashStr(todayKey()+":h"+S.hand+":"+b.i)):null;
   });
   S.waited=false;
+  if(S.tick)clearInterval(S.tick);
   S.tick=setInterval(botTick,140);
 }
 function seedKb(){
@@ -7373,6 +7417,7 @@ function botTick(){
   S.seats.forEach(b=>{
     if(b.you||b.state!=="call"||b.cracked||b.guesses.length>=GUESSES)return;
     if(now<b.nextAt)return;
+    if(!b.pool){if(!S.pool)return;b.pool=S.pool.slice();}
     b.nextAt=now+b.pace;
     withRng(b.rng||rnd,()=>{
     if(b.last&&rnd()<b.skill)
@@ -7444,7 +7489,7 @@ function checkDone(){
     }
     return;
   }
-  clearInterval(S.tick);
+  clearInterval(S.tick);S.tick=null;
   if(S.settling)return;          /* the human and the bot loop can both land here */
   S.settling=true;
   setTimeout(showdown,900);
@@ -7453,7 +7498,7 @@ function checkDone(){
 /* ── phase 6: showdown ── */
 function showdown(){
   if(S.phase==="showdown")return;
-  S.phase="showdown";clearInterval(S.tick);
+  S.phase="showdown";clearInterval(S.tick);S.tick=null;
   const setter=S.seats[S.button];
   const callers=S.seats.filter(x=>["call","crack","late","bust"].indexOf(x.state)>-1);
   Talk.showdown(setter,callers);
@@ -7505,7 +7550,9 @@ function showdown(){
     +"<table class='lb'>"+rows+"</table>"
     +"<div class='row'><button class='btn' id='nx'>"
     +(S.hand+1>=HANDS?"FINAL STANDINGS":"NEXT HAND")+"</button></div>");
+  let nxDone=false;
   $("nx").onclick=()=>{
+    if(nxDone)return;nxDone=true;
     ovHide();S.tutorial=(P.matches===0&&S.hand<1);S.hand++;S.button=(S.button+1)%SEATS;startHand();
   };
 }
@@ -7903,7 +7950,8 @@ function screenSummary(back){
 }
 
 /* ── overlay / help ── */
-function ovShow(h,solid){$("ovC").innerHTML=h;
+var HELP_OPEN=false;
+function ovShow(h,solid){HELP_OPEN=false;$("ovC").innerHTML=h;
   $("ov").classList.toggle("solid",!!solid);$("ov").classList.add("on");}
 function ovHide(){$("ov").classList.remove("on");}
 function help(){
@@ -7953,13 +8001,14 @@ function help(){
    +"the identical six deals, so you can send one to a friend and compare properly.</p>"
    +"<div class='row'><button class='btn' id='ok'>GOT IT</button></div>"
    +(canLeave()?"<div class='row'><button class='btn alt' id='leaveB'>LEAVE THE TABLE<small>your stars come with you</small></button></div>":""));
+  HELP_OPEN=true;
   $("ok").onclick=()=>{if(S.seats&&S.phase)ovHide();else screenHome();};
   if($("leaveB"))$("leaveB").onclick=()=>{const b=$("leaveB");
     if(!b.classList.contains("arm")){b.classList.add("arm");b.innerHTML="LEAVE<small>tap again \u2014 the hand ends here</small>";
       setTimeout(()=>{if(b.isConnected){b.classList.remove("arm");b.innerHTML="LEAVE THE TABLE<small>your stars come with you</small>";}},2600);return;}
     hap("heavy");location.reload();};
 }
-$("helpBtn").onclick=help;
+$("helpBtn").onclick=()=>{if(HELP_OPEN&&$("ov").classList.contains("on")&&$("ok")){$("ok").click();return;}help();};
 function paintSnd(){
   const b=$("sndBtn");if(!b)return;
   b.classList.toggle("off",!!P.mute);
@@ -8193,7 +8242,7 @@ function screenTable(code){
   S.lastCode=c;
   let qr="";
   try{qr=qrSvg(tableLink(c),190);}catch(e){qr="<div class='fine'>code too long for a QR</div>";}
-  ovShow("<h2>YOUR TABLE</h2>"
+  ovShow("<h2>DEAL THEM IN</h2>"
    +"<p class='fine'>Anyone who enters this code plays the <b>same six deals</b> you do, "
    +"so the scores line up. Send it, or hold the code up and let them scan it.</p>"
    +"<div id='qr'>"+qr+"</div>"
@@ -8234,33 +8283,51 @@ function screenJoin(pre){
 }
 
 /* ══════════ FRIENDS ══════════ */
-function screenFriends(){
+function screenFriends(pre){
+  if(typeof pre!=="string")pre="";      /* also bound straight to onclick */
   const k=todayKey(),sc=(FSC.day===k?FSC.scores:null);
   const of=h=>sc&&sc[h]?sc[h].score:null;
   const fr=(P.friends||[]).slice().sort((a,b)=>(of(b.h)==null?-1:of(b.h))-(of(a.h)==null?-1:of(a.h)));
+  const addLink=SITE+"/add/"+encodeURIComponent(P.handle||"");
+  const shareMe=()=>shareOut((P.handle||"Someone")+" is at the table on BLUFF — add me and we land on the same six deals",
+    addLink,"add","link copied");
   ovShow("<h2>FRIENDS</h2>"
    +(fr.length?"<div class='frlist'>"+fr.map((f,i)=>
       "<div class='fr' data-h='"+f.h+"'><span class='f'>"+faceOf(f.h)+"</span>"
       +"<b>"+f.h+"<u>"+(of(f.h)!=null?"today "+of(f.h)
         :sc?"has not played today":"score unavailable")
-        +" \u00B7 added "+prettyDate(f.d)+"</u></b>"
+        +" · added "+prettyDate(f.d)+"</u></b>"
       +"<span class='duel'>CHALLENGE</span>"
       +"<button class='x' data-h='"+f.h+"'>&times;</button></div>").join("")+"</div>"
-     :"<p class='fine'>Nobody here yet. Add the handles of the people you play with — they land "
-      +"on your daily board and you can pull any of them onto a private table.</p>")
-   +"<input id='fn' maxlength='9' placeholder='ADD A HANDLE' autocomplete='off'>"
+     :"<p class='fine'>Nobody here yet. Friends land on your daily board, and any of them can be pulled "
+      +"onto a private table. The quickest way in is to send them your handle.</p>")
+   +"<div class='row'><button class='btn go' id='fsh'>"+(canShare()?"SHARE MY HANDLE":"COPY MY LINK")
+     +"<small>one tap and you are on their list</small></button></div>"
+   +"<div class='row'><button class='btn alt' id='fqr'>SHOW MY QR</button>"
+   +"<button class='btn alt' id='inv'>INVITE TO A TABLE</button></div>"
+   +"<div id='fqrbox' style='display:none'></div>"
+   +"<div class='sect'>OR TYPE A HANDLE</div>"
+   +"<input id='fn' maxlength='9' placeholder='ADD A HANDLE' autocomplete='off' value='"+(pre||"").replace(/[^A-Z0-9]/g,"")+"'>"
    +"<div class='row'><button class='btn' id='fadd'>ADD</button></div>"
+   +"<p class='fine' id='fnote' style='display:none'></p>"
    +"<div class='row'><button class='btn alt' id='fb'>FRIENDS BOARD</button>"
-   +"<button class='btn alt' id='inv'>OPEN TABLE</button></div>"
-   +"<div class='row'><button class='btn alt' id='bk'>BACK</button></div>"
+   +"<button class='btn alt' id='bk'>BACK</button></div>"
    +"<p class='fine'>A challenge needs nothing sent. You and they derive the same table from "
    +"your two handles, so tapping each other’s name lands you both on the identical six deals.</p>",
    true);
   const i=$("fn");
   i.oninput=()=>{i.value=i.value.toUpperCase().replace(/[^A-Z0-9]/g,"");};
   i.onkeydown=e=>{if(e.key==="Enter")$("fadd").click();};
+  $("fsh").onclick=shareMe;
+  $("fqr").onclick=()=>{
+    const box=$("fqrbox");if(!box)return;
+    if(box.style.display!=="none"){box.style.display="none";$("fqr").textContent="SHOW MY QR";return;}
+    let q="";try{q=qrSvg(addLink,150);}catch(e){q="";}
+    box.innerHTML=q?"<div id='qr'>"+q+"</div><p class='fine'>Hold it up. Their camera opens the app with you already typed in.</p>":"<p class='fine'>"+addLink+"</p>";
+    box.style.display="";$("fqr").textContent="HIDE MY QR";
+  };
   $("fadd").onclick=async()=>{
-    const v=i.value.trim();
+    const v=i.value.trim(),note=$("fnote");
     if(v.length<2)return toast("two characters or more");
     if(!cleanText(v))return toast("pick a different name",2600);
     if(v===P.handle)return toast("that is you");
@@ -8269,11 +8336,16 @@ function screenFriends(){
     /* check the person exists before putting their name on a list. Adding a
        handle nobody plays under is how you end up with a board full of people
        who were never here. */
-    const btn=$("fadd");btn.disabled=true;btn.textContent="CHECKING\u2026";
+    const btn=$("fadd");btn.disabled=true;btn.textContent="CHECKING…";
     const found=await lookupHandles([v]);
     btn.disabled=false;btn.textContent="ADD";
-    if(found===null)return toast("cannot check that name right now \u2014 try again in a moment",3000);
-    if(!found.length)return toast("nobody plays under "+v,3000);
+    if(found===null)return toast("cannot check that name right now — try again in a moment",3000);
+    if(!found.length){
+      /* not a dead end: the person is simply not here yet, so hand over the invite */
+      if(note){note.style.display="";note.innerHTML="<b>"+v+"</b> hasn’t sat down yet. <button class='alt2' id='fsend'>SEND THEM AN INVITE</button>";
+        const b=$("fsend");if(b)b.onclick=shareMe;}
+      return;
+    }
     P.friends.push({h:v,d:todayKey()});saveP();Snd.spark();
     friendScores(true).then(()=>screenFriends());
     screenFriends();
@@ -8288,38 +8360,34 @@ function screenFriends(){
   $("fb").onclick=()=>screenBoard("friends");
   $("inv").onclick=()=>screenTable(makeCode());
   $("bk").onclick=screenHome;
+  /* arrived through /add/<handle>: the name is already typed, so just press ADD */
+  if(pre&&pre!==P.handle)setTimeout(()=>{const b=$("fadd");if(b)b.click();},80);
 }
 
 /* ══════════ A CHALLENGE ══════════ */
 function screenDuel(h){
   if(!h)return screenFriends();
   const c=challengeCode(P.handle,h);
-  let qr="";
-  try{qr=qrSvg(tableLink(c),168);}catch(e){qr="";}
+  const mine=(P.daily.last===todayKey()&&P.daily.skill!=null)?P.daily.skill+" today":"not played yet";
+  const theirs=(FSC.day===todayKey()&&FSC.scores[h])?FSC.scores[h].score+" today":"not played yet";
   ovShow("<h2>YOU vs "+h+"</h2>"
-   +"<p class='fine'>Today only, you and <b>"+h+"</b> resolve to the same table. They do not need "
-   +"this code from you — the moment they tap your name on their own list they get the same five "
-   +"characters. Same words, same clues, same prices, so the two scores actually compare.</p>"
-   +(qr?"<div id='qr'>"+qr+"</div>":"")
-   +"<div class='code'>"+c+"</div>"
    +"<div class='duelrow'>"
-     +"<div class='dside'><span class='f'>"+myFace()+"</span><b>"+(P.handle||"YOU")+"</b>"
-     +"<u>"+((P.daily.last===todayKey()&&P.daily.skill!=null)?P.daily.skill+" today":"not played")+"</u></div>"
+     +"<div class='dside'><span class='f'>"+myFace()+"</span><b>"+(P.handle||"YOU")+"</b><u>"+mine+"</u></div>"
      +"<div class='dvs'>vs</div>"
-     +"<div class='dside'><span class='f'>"+faceOf(h)+"</span><b>"+h+"</b>"
-     +"<u>"+((FSC.day===todayKey()&&FSC.scores[h])?FSC.scores[h].score+" today":"not played")
-     +"</u></div>"
+     +"<div class='dside'><span class='f'>"+faceOf(h)+"</span><b>"+h+"</b><u>"+theirs+"</u></div>"
    +"</div>"
-   +"<p class='fine' id='dsent'>telling "+h+"\u2026</p>"
+   +"<p class='fine'>Today only, you and <b>"+h+"</b> resolve to the same table: same words, same clues, "
+   +"same prices, so the two scores actually compare. They get it the moment they tap your name on their own list.</p>"
+   +"<p class='fine' id='dsent'>telling "+h+"…</p>"
    +"<div class='row'><button class='btn go' id='dgo'>PLAY THIS TABLE</button></div>"
-   +"<div class='row'><button class='btn alt' id='dcp'>COPY</button>"
+   +"<div class='code sm'>"+c+"</div>"
+   +"<div class='row'><button class='btn alt' id='dcp'>"+(canShare()?"SEND IT":"COPY")+"</button>"
    +"<button class='btn alt' id='bk'>BACK</button></div>",true);
   /* Tell them. The table was always derivable from the two handles, but
      derivable is not the same as delivered — nobody knew they had been called
      out unless they happened to look. */
   sendInvite(h,c).then(r=>{const el=$("dsent");if(el)
-    el.textContent=r?h+" has been told":"we could not reach "+h+" \u2014 they can still "
-      +"tap your name to land on the same table";});
+    el.textContent=r?h+" has been told":h+" can tap your name on their list and land on this same table";});
   $("dgo").onclick=()=>startMatch("code",c);
   $("dcp").onclick=()=>{
     shareOut((P.handle||"Someone")+" is calling you out at BLUFF — table "+c,
@@ -8329,6 +8397,12 @@ function screenDuel(h){
 }
 
 /* a shared link drops you straight onto that table */
+/* /add/<handle> — a shared friend link. The Pages Function turns it into ?add=HANDLE. */
+function addFromUrl(){
+  const m=(location.search+location.hash).match(/[?&#]add=([A-Za-z0-9]{2,9})/);
+  return m?m[1].toUpperCase():null;
+}
+var PENDING_ADD=null;
 function codeFromUrl(){
   const m=(location.hash+location.search).match(/[/?#&=]t[/=]?([A-Z0-9]{3,6})/i)
         ||location.href.match(/\/t\/([A-Z0-9]{3,6})/i);
@@ -8560,7 +8634,7 @@ function screenRebuy(){
     +(Pay.live?"<div class='row'><button class='btn alt' id='rbBuy'>\u2726 STORE"
         +"<small>stars, if you would rather not wait</small></button></div>":"")
     +"<div class='row'><button class='btn alt' id='rbBack'>BACK</button></div>",true);
-  if($("rbFree"))$("rbFree").onclick=()=>{ if(stakeUp()){Snd.stars(BUYIN);screenHome();} };
+  if($("rbFree"))$("rbFree").onclick=()=>{ if(stakeUp()){Snd.stars(BUYIN);screenHome();} else screenHome(); };
   if($("rbAd"))$("rbAd").onclick=async()=>{
     const b=$("rbAd");b.disabled=true;b.textContent="LOADING…";
     const seen=await Ads.rewarded();
@@ -8852,6 +8926,7 @@ function challengeCode(a,b){
 
 function screenHome(){
   if(!P.handle)return screenHandle();
+  if(PENDING_ADD){const a=PENDING_ADD;PENDING_ADD=null;if(a!==P.handle)return screenFriends(a);}
   stakeUp();                       /* the clock may have run out while it was shut */
   const t=tierOf(P.rating),nx=nextTier(P.rating);
   const done=dailyDone();
@@ -8872,15 +8947,15 @@ function screenHome(){
      +" rating to "+nx[1]+"</p>":"<p class='fine'>Top of the ladder.</p>")
    +prizeStrip()
    +chestStrip()
-   +"<div class='row'><button class='btn' id='cash'>OPEN TABLE<small>stars and rating</small></button>"
+   +"<div class='row'><button class='btn' id='cash'>QUICK TABLE<small>stars and rating</small></button>"
    +"<button class='btn alt' id='speed'>"+ico("bolt")+" SPEED<small>90s a hand</small></button></div>"
    +"<div class='row'><button class='btn "+(done?"alt":"go")+"' id='daily'>"
      +(done?"DAILY PLAYED":"PLAY THE DAILY")+"<small>"
      +(done?"back tomorrow \u00B7 streak "+P.daily.streak:"this is the one that counts")
      +"</small></button></div>"
-   +"<div class='row'><button class='btn alt' id='store'>\u2726 STORE</button>"
-   +"<button class='btn alt' id='invite'>INVITE</button>"
+   +"<div class='row'><button class='btn alt' id='invite'>INVITE A FRIEND</button>"
    +"<button class='btn alt' id='fri'>FRIENDS</button></div>"
+   +"<div class='row'><button class='btn alt' id='store'>\u2726 STORE</button></div>"
    +inlineBoard()
    +(Store.live?"":"<p class='fine warn'>This viewer blocks local storage, so your record "
      +"will not survive a reload. Open the file directly and it persists.</p>"),true);
@@ -9281,17 +9356,16 @@ function screenHandle(){
   ovShow("<h1>BLUFF</h1>"
    +"<p style='letter-spacing:.1em;font-size:11px;margin-top:2px'>PICK A WORD. CLAIM THEY CANNOT GET IT.</p>"
    +"<div class='ex'><i class='h'>W</i><i></i><i></i><i></i><i class='h'>H</i></div>"
-   +"<p>Six seats, six hands, the button rotates. On your hand you choose a secret word, give the "
-   +"table <b>one clue</b>, and set the difficulty. Anyone who calls gets four guesses and beats "
-   +"you by cracking it in the first three — "
-   +"<b>miss and you take their stars, crack it and they take yours.</b></p>"
-   +"<p>Everything you do from here goes on your record.</p>"
+   +"<p>Set a word, give one clue, name the difficulty. <b>Miss and you take their stars; "
+   +"crack it and they take yours.</b></p>"
+   +"<p class='fine'><button class='alt2' id='hhow'>HOW IT WORKS</button></p>"
    +"<input id='hnd' maxlength='9' placeholder='PICK A HANDLE' autocomplete='off'>"
    +"<p class='fine' id='hnote'>This is the name on the board, and it is yours once you take "
    +"it. No email, no password \u2014 it lives on this device.</p>"
    +"<div id='fpick'>"+facePicker(P.crest)+"</div>"
    +"<div class='row'><button class='btn' id='go2'>TAKE A SEAT</button></div>",true);
   wireFaces(f=>{P.crest=f;});
+  if($("hhow"))$("hhow").onclick=help;
   const i=$("hnd");i.focus();
   i.oninput=()=>{i.value=i.value.toUpperCase().replace(/[^A-Z0-9]/g,"");const fp=$("fpick");if(fp){fp.innerHTML=facePicker(P.crest,i.value);wireFaces(f=>{P.crest=f;});}};
   i.onkeydown=e=>{if(e.key==="Enter")$("go2").click();};
@@ -9334,7 +9408,8 @@ function screenProfile(){
      +"<div class='sc'><b>"+P.bankroll.toLocaleString()+"</b><span>STARS</span></div>"
      +"<div class='sc'><b>"+P.w+"–"+P.l+"</b><span>RECORD</span></div>"
    +"</div>"
-   +"<div class='sect'>THE TABLE</div><table class='lb'>"
+   +seatAskCard(true)
+   +((P.matches||0)?"<div class='sect'>THE TABLE</div><table class='lb'>"
    +row("Matches",P.matches)
    +row("Won outright",P.firsts,P.matches?Math.round(100*P.firsts/P.matches)+"%":"")
    +row("Best streak",P.bestStreak,"current "+P.streak)
@@ -9354,13 +9429,13 @@ function screenProfile(){
    +row("Folded",P.foldedN,read+"% good laydowns")
    +row("Stars taken",(P.callChips>=0?"+":"")+P.callChips)
    +"</table>"
+   :"<div class='sect'>THE RECORD</div><p class='fine' style='text-align:left;margin-top:6px'>Nothing on the record yet. Play the daily and this fills in.</p>")
    +(P.bestBluff?"<div class='sect'>BEST BLUFF</div><div class='hl'><b>"+P.bestBluff.word+"</b>"
      +"<span>"+P.bestBluff.rate+"% card · "+P.bestBluff.callers+" called · nobody cracked it</span>"
      +"<u>+"+P.bestBluff.take+"</u></div>":"")
    +(P.bigHand?"<div class='sect'>BIGGEST HAND</div><div class='hl'><b>"+P.bigHand.word+"</b>"
      +"<span>"+P.bigHand.rate+"% card · "+P.bigHand.callers+" called</span>"
      +"<u>+"+P.bigHand.take+"</u></div>":"")
-   +seatAskCard(true)
    +"<div class='sect'>YOUR CREST</div>"+facePicker(P.crest)
    +(CASH?"<div class='sect'>REGION</div>"
      +"<button class='cstrip' id='pgeo'><b>"+ico("globe")+" "+regionName().toUpperCase()+"</b>"
@@ -9525,7 +9600,8 @@ if("serviceWorker" in navigator&&location.protocol!=="file:")
   const n=Date.now();if(n-t<320)e.preventDefault();t=n;},{passive:false});})();
 
 (function(){
-  const c=codeFromUrl();
+  const c=codeFromUrl(),a=addFromUrl();
+  if(a)PENDING_ADD=a;
   if(!P.agreed)return screenGate();
   if(c&&P.handle){S.lastCode=c;screenJoin(c);}
   else screenHome();

@@ -23,7 +23,7 @@ const is=(a,b,m)=>a===b?ok(m):no(`${m} — got ${JSON.stringify(a)}, wanted ${JS
   await p.click('#cash'); await p.waitForTimeout(400);
   is(await p.locator('#rbDaily').count()>0,true,'a cash table with no stake shows the rebuy screen');
   is(await p.locator('#rbFree').count(),0,'no free-stake button while the clock is running');
-  is((await p.locator('#ov').innerText()).includes('stakes you again in'),true,
+  is(/(claims|stakes) you again in/.test(await p.locator('#ov').innerText()),true,
      'but the promise of one is on screen');
   is(await p.locator('#rbDaily').count()>0,true,'and the free daily is offered first');
   is(await p.evaluate(()=>P.rebuyAt>Date.now()),true,'and the clock actually started');

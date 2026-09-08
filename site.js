@@ -157,7 +157,7 @@ const server = http.createServer((req, res) => {
                  [/do not.*sell|not.*sold/i, 'the no-sale statement'],
                  [/decisions/i, 'what actually leaves the device'],
                  [/no account|without an account/i, 'that there is no account'],
-                 [/privacy@webluff\.com/, 'a contact address']],
+                 [/info@webluff\.com/, 'a contact address']],
     '/terms': [[/cannot be exchanged for money/i, 'that stars are not money'],
                [/third-party beneficiaries/i, 'the Apple clause'],
                [/as-is|as is/i, 'the warranty disclaimer']],
@@ -167,7 +167,7 @@ const server = http.createServer((req, res) => {
                [/one run|once per|first run/i, 'the one-entry rule'],
                [/UTC/, 'the closing time']],
     '/support': [[/ringer switch/i, 'the iPhone sound answer'],
-                 [/support@webluff\.com/, 'a real address']]
+                 [/info@webluff\.com/, 'a real address']]
   };
   const NOMONEY = [[/\$\s?\d/, 'a dollar amount'], [/cash prize/i, 'a cash prize'],
                    [/1099|W-9/i, 'winner tax paperwork'], [/sweepstakes/i, 'a sweepstakes'],
