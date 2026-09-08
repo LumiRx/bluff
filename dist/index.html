@@ -1058,6 +1058,36 @@ body.typing .talkbar{display:none}
   .rv{padding:2px 5px;min-width:46px}
   .rv .n{margin-bottom:1px}
 }
+/* ── ceremonies (1.1.3). Things arrive in order: cards are dealt, tells are laid, the word turns
+   over a letter at a time, then the verdict, then the table settles. Same two curves, nothing over
+   380ms per element; reduced motion gets the end states. The markup carries --i / --n / --r. ── */
+@keyframes bl-deal{from{transform:translateY(18px) rotate(-2deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes bl-flipin{from{transform:rotateX(88deg) translateY(4px);opacity:0}to{transform:none;opacity:1}}
+.wcard.in{animation:bl-deal var(--d-slow) var(--e-spring) backwards;animation-delay:calc(var(--i,0)*60ms)}
+.tell.in{animation:bl-rise var(--d-base) var(--e-spring) backwards;animation-delay:calc(var(--i,0)*55ms)}
+#tellBar .mini i{animation:bl-flipin var(--d-base) var(--e-spring) backwards;animation-delay:calc(var(--i,0)*45ms)}
+h1.reveal i{display:inline-block;font-style:normal;animation:bl-flipin var(--d-slow) var(--e-spring) backwards;animation-delay:calc(var(--i,0)*70ms)}
+.after{animation:bl-rise var(--d-base) var(--e-spring) backwards;animation-delay:calc(var(--n,0)*70ms + 160ms)}
+.lb.settle tr,.board.settle>*{animation:bl-rise var(--d-base) var(--e-out) backwards;animation-delay:calc(var(--n,0)*70ms + 240ms + var(--r,0)*45ms)}
+.lb.settle tr:nth-child(2),.board.settle>:nth-child(2){--r:1}
+.lb.settle tr:nth-child(3),.board.settle>:nth-child(3){--r:2}
+.lb.settle tr:nth-child(4),.board.settle>:nth-child(4){--r:3}
+.lb.settle tr:nth-child(5),.board.settle>:nth-child(5){--r:4}
+.lb.settle tr:nth-child(6),.board.settle>:nth-child(6){--r:5}
+.lb.settle tr:nth-child(n+7),.board.settle>:nth-child(n+7){--r:6}
+@media (prefers-reduced-motion:reduce){.wcard.in,.tell.in,#tellBar .mini i,h1.reveal i,.after,.lb.settle tr,.board.settle>*{animation:none!important}}
+/* ── the display face: Newsreader for what is said, the system face for what is done.
+   Bundled at dist/fonts (OFL), swap so nothing ever waits on it. ── */
+@font-face{font-family:"Newsreader";font-style:normal;font-weight:600 800;font-display:swap;src:url(fonts/newsreader-latin.woff2) format("woff2")}
+:root{--display:"Newsreader",Georgia,"Times New Roman",serif}
+#hdr .brand,#mark,#ovC h1,#ovC h2,.code{font-family:var(--display)}
+#hdr .brand{font-weight:800;letter-spacing:.2em;font-size:16px}
+#ovC h1{font-weight:800;letter-spacing:.24em}
+#ovC h2{font-weight:700;letter-spacing:.06em;font-size:19px}
+.code{font-weight:800}
+/* short screens start high with a generous margin instead of floating dead-centre (walkthrough §1.6e) */
+#ov.solid{align-items:flex-start;padding-top:max(6vh,calc(16px + env(safe-area-inset-top)))}
+#ov.solid #ovC{max-height:calc(100vh - max(6vh,calc(16px + env(safe-area-inset-top))) - 16px - env(safe-area-inset-bottom))}
 </style>
 </head>
 <body>
@@ -4806,10 +4836,11 @@ function tellText(t){
   return ["LETTERS VOIDED","It contains no "+[...t.c].join(" and no ")+" anywhere."];
 }
 function tellTiles(t,L){
+  const at=i=>" style='--i:"+i+"'";
   if(t.k==="pin"){let s="";for(let i=0;i<(L||5);i++)
-    s+=i===t.i?"<i class='h'>"+t.c+"</i>":"<i></i>";return s;}
-  if(t.k==="float")return "<i class='n'>"+t.c+"</i>";
-  return [...t.c].map(c=>"<i class='x'>"+c+"</i>").join("");
+    s+=i===t.i?"<i class='h'"+at(i)+">"+t.c+"</i>":"<i"+at(i)+"></i>";return s;}
+  if(t.k==="float")return "<i class='n'"+at(0)+">"+t.c+"</i>";
+  return [...t.c].map((c,i)=>"<i class='x'"+at(i)+">"+c+"</i>").join("");
 }
 
 /* candidate tells for a word: two pins, two floats, two voids */
@@ -7001,7 +7032,7 @@ function phaseDeal(again){
   const c=$("cards");
   cards.forEach(w=>{
     const r=RATE[w],b=bandOf(r,w.length);
-    const d=document.createElement("div");d.className="wcard";
+    const d=document.createElement("div");d.className="wcard in";d.style.setProperty("--i",c.children.length);
     d.innerHTML="<div class='w'>"+w+"</div><div class='r'>"+r+"%</div>"
       +"<div class='rl'>CRACKED</div>"
       +"<div class='bd' style='background:"+b[1]+";color:"+b[2]+"'>"+b[0]+"</div>";
@@ -7031,7 +7062,7 @@ function phaseTell(){
   const box=$("tells");
   opts.forEach(t=>{
     const tx=tellText(t);
-    const d=document.createElement("div");d.className="tell";
+    const d=document.createElement("div");d.className="tell in";d.style.setProperty("--i",box.children.length);
     d.innerHTML="<div class='mini'>"+tellTiles(t,S.word.length)+"</div>"
       +"<div class='tx'><b>"+tx[0]+"</b><span>"+tx[1]+"</span></div>"
       +"<div class='cnt'>"+t.n+"<em>LEFT</em><u>MAX "+capFor(t.n,S.word.length)+"</u></div>";
@@ -7542,12 +7573,13 @@ function showdown(){
 
   ovShow(
     "<div style='font-size:9px;letter-spacing:.2em;color:#8fa0b5'>THE WORD WAS</div>"
-    +"<h1 style='font-size:32px;letter-spacing:.16em;margin:4px 0 2px'>"+S.word+"</h1>"
+    +"<h1 class='reveal' style='font-size:32px;letter-spacing:.16em;margin:4px 0 2px'>"
+    +S.word.split("").map((ch,i)=>"<i style='--i:"+i+"'>"+ch+"</i>").join("")+"</h1>"
     +wordCard(S.word)
     +"<div style='font-size:10px;color:#8fa0b5;letter-spacing:.08em;margin-top:8px'>beaten by "
     +RATE[S.word]+"% &middot; "+tellText(S.tell)[1]+"</div>"
-    +"<p style='margin-top:12px'><b>"+verdict+"</b></p>"
-    +"<table class='lb'>"+rows+"</table>"
+    +"<p class='after' style='margin-top:12px;--n:"+S.word.length+"'><b>"+verdict+"</b></p>"
+    +"<table class='lb settle' style='--n:"+S.word.length+"'>"+rows+"</table>"
     +"<div class='row'><button class='btn' id='nx'>"
     +(S.hand+1>=HANDS?"FINAL STANDINGS":"NEXT HAND")+"</button></div>");
   let nxDone=false;
@@ -7926,7 +7958,7 @@ function screenSummary(back){
      +"<div class='sc'><b>"+P.w+"–"+P.l+"</b><span>RECORD</span></div>"
    +"</div>"
    +bhead("FINAL STACKS","STARS")
-   +"<div class='board'>"+rows+"</div>"
+   +"<div class='board"+(back?"":" settle")+"' style='--n:0'>"+rows+"</div>"
    +seatAskCard()
    +"<div class='row'><button class='btn' id='sh'>SHARE</button>"
    +"<button class='btn alt' id='lb'>LADDER</button></div>"
@@ -8996,7 +9028,9 @@ function screenGate(back){
      again later is worse than keeping it — but it is optional now, and nothing
      depends on the answer. */
   if(!CASH){
-    ovShow("<h2>BEFORE YOU SIT DOWN</h2>"
+    ovShow("<h1>BLUFF</h1>"
+     +"<p style='letter-spacing:.1em;font-size:11px;margin:2px 0 14px'>SIX SEATS. SIX HANDS. ONE WORD EACH.</p>"
+     +"<h2>BEFORE YOU SIT DOWN</h2>"
      +"<p class='fine'>BLUFF is free. There is nothing to buy, nothing to win but the top of "
      +"the board, and no account to make \u2014 everything stays on this device.</p>"
      +"<div class='gate'>"

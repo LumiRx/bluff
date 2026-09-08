@@ -2,7 +2,7 @@
 const { chromium } = require('playwright');
 const passGate = require('/Users/rick/Downloads/bluff/gate');
 const fs=require('fs');const dir='/Users/rick/Downloads/bluff/out/shots';fs.mkdirSync(dir,{recursive:true});
-const VPS=[[393,852],[390,844],[375,667]];
+const VPS=process.env.VP?[process.env.VP.split('x').map(Number)]:[[393,852],[390,844],[375,667]];
 const FILE=process.argv[2]||'file:///Users/rick/Downloads/bluff/index.html';
 (async()=>{
   const b=await chromium.launch();
@@ -10,7 +10,7 @@ const FILE=process.argv[2]||'file:///Users/rick/Downloads/bluff/index.html';
     const ctx=await b.newContext({viewport:{width:w,height:h},deviceScaleFactor:2,isMobile:true,hasTouch:true});
     const p=await ctx.newPage();
     await p.addInitScript(()=>{window.__talkAlways=true;});
-    await p.goto(FILE); await passGate(p);
+    await p.goto(FILE); await p.waitForSelector('#tos'); await p.waitForTimeout(400); await p.screenshot({path:`${dir}/gate-${w}x${h}.png`}); await passGate(p);
     await p.fill('#hnd','S'+Math.random().toString(36).replace(/[^a-z0-9]/g,'').slice(0,5).toUpperCase());
     await p.click('#go2'); await p.waitForSelector('#cash');
     await p.screenshot({path:`${dir}/home-${w}x${h}.png`});
@@ -48,6 +48,10 @@ const FILE=process.argv[2]||'file:///Users/rick/Downloads/bluff/index.html';
     await p.screenshot({path:`${dir}/board-typed-${w}x${h}.png`});
     const geo=await p.evaluate(()=>{const r=id=>{const e=document.getElementById(id);if(!e)return null;const b=e.getBoundingClientRect();return [Math.round(b.left),Math.round(b.top),Math.round(b.width),Math.round(b.height)]};return {potLbl:r('potLbl'),potVal:r('potVal'),center:r('center'),table:r('table'),stage:r('stage'),kb:r('kb'),board:r('board'),vh:innerHeight,doc:document.documentElement.scrollHeight}});
     console.log(w+'x'+h,JSON.stringify(geo));
+    for(const ch of 'CRANE'.slice(0,await p.evaluate(()=>S.word.length)))await key('⌫');
+    const wd=await p.evaluate(()=>S.word);for(const ch of wd)await key(ch);await key('↵');
+    let tt=Date.now();while(Date.now()-tt<90000){if(await p.evaluate(()=>{const b=document.getElementById('nx');return !!(b&&b.offsetParent!==null)}))break;await p.waitForTimeout(250);}
+    await p.waitForTimeout(900); await p.screenshot({path:`${dir}/result-${w}x${h}.png`});
     await ctx.close();
   }
   await b.close();
