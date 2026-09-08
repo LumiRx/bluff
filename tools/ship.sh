@@ -255,6 +255,14 @@ if [ -n "$EXPORT_ONLY" ]; then
   say "re-using $ARCHIVE"
 fi
 if [ -z "$EXPORT_ONLY" ]; then
+# The Podfile's post_install turns the module verifier off for the pod targets
+# (Cordova's vendored headers fail it). cap sync's own pod install has been seen
+# to skip that hook, and the archive then dies in VerifyModule on CordovaPlugins.
+# One more pod install is cheap; archiving without the setting is a wasted run.
+say "regenerating the Pods project (module verifier off for pod targets)"
+( cd ios/App && pod install >/tmp/ship-pods.log 2>&1 ) || die "pod install failed — see /tmp/ship-pods.log"
+grep -q "ENABLE_MODULE_VERIFIER = NO" ios/App/Pods/Pods.xcodeproj/project.pbxproj \
+  || die "the Pods project still has the module verifier on — check the post_install hook in ios/App/Podfile"
 say "archiving — this takes a few minutes and prints a lot"
 xcodebuild -workspace ios/App/App.xcworkspace \
   -scheme "$SCHEME" \
