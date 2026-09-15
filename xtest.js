@@ -137,6 +137,21 @@ const RICH=()=>{P.matches=14;P.firsts=3;P.w=9;P.l=5;P.rating=1612;P.bestStreak=6
     ok('…by redirecting to X with a real client_id',
        /client_id=[^&]+/.test(st.headers().location||''));
   }
+  /* ── the bio link ── */
+  const chan=await p.request.get(SITE+'/c/x',{maxRedirects:0});
+  const cl=chan.headers().location||'';
+  ok('/c/x is attributed to X, not to the streamer campaign',
+     /utm_source=x\b/.test(cl)&&!/streamer-challenge/.test(cl), cl.replace(SITE,''));
+  ok('…and does not hand a stranger a table code named X', !/[?&]c=/.test(cl));
+  ok('…while a real creator code still pays the creator', await (async()=>{
+      const r=await p.request.get(SITE+'/c/ABC123',{maxRedirects:0});
+      const l=r.headers().location||'';
+      return /c=ABC123/.test(l)&&/utm_campaign=streamer-challenge/.test(l);})());
+  ok('…and an invite link is still an invite', await (async()=>{
+      const r=await p.request.get(SITE+'/t/ABC123',{maxRedirects:0});
+      const l=r.headers().location||'';
+      return /c=ABC123/.test(l)&&/utm_medium=invite/.test(l);})());
+
   const cb=await p.request.get(SITE+'/api/x/callback?error=access_denied',{maxRedirects:0});
   ok('/api/x/callback handles a cancelled sign-in', cb.status()===200, 'HTTP '+cb.status());
   ok('…and says nothing changed', /Nothing changed/.test(await cb.text()));
