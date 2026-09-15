@@ -50,10 +50,14 @@ const log=[];let bad=0;const ok=(n,c,note)=>{log.push(`${c?'ok ':'BAD'} ${n}${no
   // 5. profile: seat ask above stats; zero record collapses
   await p.evaluate(()=>screenProfile()); await p.waitForTimeout(150);
   const porder=await p.evaluate(()=>[...document.querySelectorAll('#ovC .seatask, #ovC .sect')].map(e=>e.className==='sect'?e.textContent:'SEATASK'));
-  ok('profile: seat ask before the record', porder.indexOf('SEATASK')>-1&&porder.indexOf('SEATASK')<porder.findIndex(x=>/RECORD|THE TABLE/.test(x)), porder.join(' > '));
-  ok('profile: zero matches → one line', porder.includes('THE RECORD')&&!porder.includes('THE TABLE'));
-  await p.evaluate(()=>{P.matches=3;screenProfile();}); await p.waitForTimeout(150);
-  ok('profile: with matches → full tables', (await p.locator('#ovC .sect',{hasText:'THE TABLE'}).count())===1&&(await p.locator('#ovC .sect',{hasText:'WHEN THEY SET'}).count())===1);
+  ok('profile: the seat ask comes before anything else', porder.indexOf('SEATASK')===0, porder.join(' > '));
+  await p.evaluate(()=>screenRecord()); await p.waitForTimeout(150);
+  ok('record: zero matches → one line',
+     (await p.locator('#ovC .sect').count())===0
+     &&/Nothing on the record yet/.test(await p.locator('#ovC').innerText()));
+  await p.evaluate(()=>{P.matches=3;screenRecord();}); await p.waitForTimeout(150);
+  ok('record: with matches → full tables', (await p.locator('#ovC .sect',{hasText:'THE TABLE'}).count())===1&&(await p.locator('#ovC .sect',{hasText:'WHEN THEY SET'}).count())===1);
+  await p.evaluate(()=>{P.matches=0;saveP();});
   // 6. handle screen copy + HOW IT WORKS; help toggle
   await p.evaluate(()=>screenHandle()); await p.waitForTimeout(150);
   ok('handle: short copy', (await p.locator('#ovC p').count())<=4, String(await p.locator('#ovC p').count()));

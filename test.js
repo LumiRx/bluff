@@ -133,9 +133,13 @@ const path = 'file://' + __dirname + '/index.html';
     await page.click('#lb'); await page.waitForSelector('#t1'); await overflow(page, 'ladder');
     await page.click('#t2'); await page.waitForSelector('.board'); await overflow(page, 'daily board');
     await page.click('#bk'); await page.waitForSelector('#meBtn');
-    await page.click('#meBtn'); await page.waitForSelector('#wipe'); await overflow(page, 'profile');
+    await page.click('#meBtn'); await page.waitForSelector('#pset'); await overflow(page, 'profile');
     const prof = await page.evaluate(() => document.getElementById('ovC').innerText.length);
     if (prof < 300) bad('profile screen looks empty');
+    await page.click('#pset'); await page.waitForSelector('#wipe'); await overflow(page, 'settings');
+    const setn = await page.evaluate(() => document.getElementById('ovC').innerText.length);
+    if (setn < 300) bad('settings screen looks empty');
+    await page.click('#bk'); await page.waitForSelector('#pset');
     await page.click('#bk'); await page.waitForSelector('#cash');
     await ctx.close();
   }

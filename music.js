@@ -200,7 +200,8 @@ const path = 'file://' + __dirname + '/index.html';
   // the profile has to expose it
   await page.fill('#hnd', 'VIV'); await page.click('#go2');
   await page.waitForSelector('#cash');
-  await page.click('#meBtn'); await page.waitForSelector('#pmus');
+  await page.click('#meBtn'); await page.waitForSelector('#pset');
+  await page.click('#pset'); await page.waitForSelector('#pmus');
   await page.click('#pmus');
   if (!await page.evaluate(() => P.noMusic)) bad('the profile music switch does nothing');
   else ok('the switch is in the profile, next to the sound one');

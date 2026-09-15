@@ -65,7 +65,9 @@ const SERVER = () => {
   console.log('\n2. signing in when you choose to');
   await p.evaluate(()=>{P.rating=1500;P.matches=2;saveP();screenProfile();});
   await p.waitForTimeout(200);
-  is(await p.locator('#psign').count()>0,true,'the profile offers it');
+  is(await p.locator('#pset').count()>0,true,'the profile has a way into settings');
+  await p.click('#pset'); await p.waitForTimeout(250);
+  is(await p.locator('#psign').count()>0,true,'settings offers KEEP YOUR RECORD');
   await p.click('#psign'); await p.waitForTimeout(200);
   is(await p.locator('#sgPh').count()>0,true,'which opens the number screen');
 
@@ -105,9 +107,9 @@ const SERVER = () => {
      'and says why, in terms of the player rather than of our database');
 
   console.log('\n5. deleting it');
-  await p.evaluate(()=>{setSession('sess-abc');P.last4='0142';saveP();screenProfile();});
+  await p.evaluate(()=>{setSession('sess-abc');P.last4='0142';saveP();screenSettings();});
   await p.waitForTimeout(250);
-  is(await p.locator('#pdel').count()>0,true,'the profile offers deletion, in the app');
+  is(await p.locator('#pdel').count()>0,true,'settings offers deletion, in the app');
   await p.click('#pdel'); await p.waitForTimeout(250);
   is((await p.locator('#ov').innerText()).includes('cannot be undone'),true,
      'with a confirmation that does not soften what it does');

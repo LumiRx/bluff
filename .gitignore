@@ -31,3 +31,12 @@ __pycache__/
 
 # local secrets — never commit
 .secrets/
+
+# ── local scratch from the wave codemods ──
+# Backups of the single-file game and of suites mid-reroute. Useful on the
+# machine, worthless in history, and a 600KB index.html copy each.
+_backup_sept1/
+_to_delete/
+out/
+*.pre-wave7
+*.pre-sept8

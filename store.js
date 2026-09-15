@@ -23,8 +23,10 @@ const passGate = require('./gate');
               '| name tappable:',home.hasMe,'| h-overflow',home.ho);
   await p.screenshot({path:'s-home.png',fullPage:true});
   // name -> profile
-  await p.click('#meBtn'); await p.waitForSelector('#wipe');
+  await p.click('#meBtn'); await p.waitForSelector('#pset');
+  await p.click('#pset'); await p.waitForSelector('#wipe');
   console.log('  tapping the name opens the profile: true');
+  await p.click('#bk'); await p.waitForSelector('#pset');
   await p.click('#bk'); await p.waitForSelector('#store');
   // book -> rules
   await p.click('#howto'); await p.waitForSelector('#ok');

@@ -1089,7 +1089,7 @@ h1.reveal i{display:inline-block;font-style:normal;animation:bl-flipin var(--d-s
 /* short screens start high with a generous margin instead of floating dead-centre (walkthrough §1.6e) */
 #ov.solid{align-items:flex-start;padding-top:max(6vh,calc(16px + env(safe-area-inset-top)))}
 #ov.solid #ovC{max-height:calc(100vh - max(6vh,calc(16px + env(safe-area-inset-top))) - 16px - env(safe-area-inset-bottom))}
-/* ══════════ THE DRAWING (1.1.4) ══════════
+/* ══════════ THE DRAWING (1.1.5) ══════════
    Four things, in the order a player notices them: the table becomes paper, everything on
    paper is re-inked, the word cards behave like cards, the markers carry denominations, and
    one grain layer sits over the lot so nothing reads as flat screen colour. */
@@ -1154,6 +1154,61 @@ body.paper .chip.m10{box-shadow:0 2px 0 #bdb2a0,0 0 0 1px rgba(27,42,65,.22) ins
 .key.m{background:#cdc4b3;color:#8c8474;border-color:#bdb3a0;box-shadow:0 2px 0 #b0a693}
 #kb.off{opacity:.5}
 @media (prefers-reduced-motion:reduce){body::after{display:none}}
+/* ══════════ PROFILE v2 (1.1.5) ══════════
+   Who you are, what you have earned, who you play with — and every setting somewhere else. */
+
+/* the plate: your crest at a size worth looking at */
+.plate{display:flex;align-items:center;gap:13px;text-align:left;margin-bottom:14px}
+.plate .pwho{min-width:0;flex:1}
+.plate .pwho b{display:block;font-family:var(--display);font-size:24px;font-weight:800;
+  letter-spacing:.06em;color:var(--cream);line-height:1.1}
+.plate .pwho em{display:block;font-style:normal;font-size:9.5px;color:var(--dim);margin-top:4px;
+  letter-spacing:.04em}
+
+/* the cabinet: a shelf of things that happened, not a table of numbers */
+.cab{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.cabi{position:relative;background:linear-gradient(177deg,#141b26,#111722);
+  border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:9px;
+  padding:9px 11px;text-align:left}
+.cabi .k{display:block;font-size:7.5px;letter-spacing:.2em;color:var(--gold);font-weight:700}
+.cabi b{display:block;font-family:var(--display);font-size:19px;font-weight:800;
+  letter-spacing:.04em;color:var(--cream);margin-top:2px;line-height:1.15}
+.cabi .d{display:block;font-size:9.5px;color:var(--dim);margin-top:3px;line-height:1.4}
+.cabi u{position:absolute;right:11px;top:50%;transform:translateY(-50%);text-decoration:none;
+  font-size:14px;font-weight:800;color:var(--hit);font-variant-numeric:tabular-nums}
+.cabi.bluff{border-left-color:var(--gold)}
+.cabi.hand{border-left-color:var(--hit)}
+.cabi.first{border-left-color:#c8a24a}
+.cabi.streak{border-left-color:var(--near)}
+.cabi.held{border-left-color:#7d8ea8}
+.cabi.peak{border-left-color:#8f7bb5}
+
+/* connections: who is at the table with you */
+.conx{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 10px}
+.conx .cx{display:flex;align-items:center;gap:6px;background:#121822;border:1px solid var(--line);
+  border-radius:20px;padding:4px 10px 4px 5px;cursor:pointer;font-family:inherit;
+  color:var(--dim);font-size:10px;font-weight:700;letter-spacing:.06em;min-height:var(--touch)}
+.conx .cx.on{border-color:rgba(212,172,123,.42);color:var(--cream)}
+.conx .cx .crest{width:22px;height:22px;border-radius:7px;font-size:9px}
+
+/* the X row */
+.xrow{display:flex;align-items:center;gap:9px;background:#121822;border:1px solid var(--line);
+  border-radius:10px;padding:10px 11px;margin-top:6px;text-align:left}
+.xrow .xg{flex:none;display:flex;color:var(--cream)}
+.xrow .xg .ico{width:15px;height:15px}
+.xrow b{font-size:13px;color:var(--cream);letter-spacing:.02em}
+.xrow em{font-style:normal;font-size:9px;color:var(--dim);letter-spacing:.06em}
+.xrow em.ok{color:var(--gold)}
+.xrow .xoff{margin-left:auto;background:none;border:1px solid var(--line);border-radius:7px;
+  color:var(--dim);font-family:inherit;font-size:8.5px;letter-spacing:.12em;font-weight:700;
+  padding:7px 9px;cursor:pointer;min-height:36px}
+.xbtn .ico{width:13px;height:13px;vertical-align:-2px;margin-right:5px}
+
+/* the share ceremony: the strip writes itself out a line at a time */
+@keyframes bl-line{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card .cl{animation:bl-line var(--d-base) var(--e-out) backwards;
+  animation-delay:calc(var(--i,0)*70ms)}
+@media (prefers-reduced-motion:reduce){.card .cl{animation:none}}
 </style>
 </head>
 <body>
@@ -5045,7 +5100,10 @@ function assistFor(lv){
     sample:lv<=2?6:lv<=4?3:lv<=6?2:0 /* words that still fit, shown under the count */
   };
 }
-function assisted(){return !(S&&S.daily)&&!P.assistOff;}
+/* the ranked daily is the only table that must be identical for everybody.
+   A friend's coded table is a comparison, not a leaderboard. */
+function theDaily(){return !!(S&&S.daily&&!S.coded);}
+function assisted(){return !theDaily()&&!P.assistOff;}
 /* A revealed green letter feels like far more information than it is.
    That misjudgement is why a bait pays -- so the bots carry it too. */
 const PINBIAS={pin:.14,float:.05,void:-.03};
@@ -5662,9 +5720,10 @@ function dailyBoard(){
    drawn mark is not an option. A coloured square is legible in every text field
    on earth, and a row of them is the only part of a result anyone reads. */
 const SYM={held:"\u{1F451}",up:"\u{1F7E9}",down:"\u{1F7E5}",fold:"⬜"};
-function stripOf(list){return list.map(h=>h.sym).join("");}
+function stripOf(list){return (list||[]).map(h=>h.sym).join("");}
 function shareText(){
-  const s=S.session;
+  const s=S.session||{delta:0,place:0};
+  if(!S.strip)S.strip=[];
   const head=S.daily?"BLUFF · daily "+prettyDate(todayKey()):"BLUFF · cash";
   let out=head+"\n"+stripOf(S.strip)+"  "+(s.delta>=0?"+":"")+s.delta+"\n";
   const best=S.strip.filter(h=>h.role==="set"&&h.callers>0).sort((a,b)=>b.d-a.d)[0];
@@ -6459,6 +6518,7 @@ addEventListener("pointerdown",e=>{
 const MARK={
   snd:  "M4 10h3l4-3.4v10.8L7 14H4z M14.6 9.8a3.6 3.6 0 0 1 0 4.4 M17.3 7.4a7 7 0 0 1 0 9.2",
   mute: "M4 10h3l4-3.4v10.8L7 14H4z M14.8 9.6l4.8 4.8 M19.6 9.6l-4.8 4.8",
+  x:"M18.9 2H22l-7.13 8.14L23.26 22h-6.4l-5.02-6.56L6.1 22H3l7.63-8.72L2.24 2h6.56l4.53 5.99L18.9 2z",
   book: "M12 7.4C10.6 6.1 8.6 5.4 5 5.4v12c3.6 0 5.6.7 7 2 1.4-1.3 3.4-2 7-2v-12"
        +"c-3.6 0-5.6.7-7 2z M12 7.4v12",
   bolt: "M13.2 3 6.4 13.2H11l-.9 7.8 6.9-10.2h-4.6z",
@@ -6990,7 +7050,7 @@ function applyLetter(seat,pos,fromName){
 const SOLO_ITEMS={hint:1,peek:1,mull:1};      /* touch nothing but your own hand */
 function useItem(k,seat){
   const me=S.seats[0];
-  if(S.daily&&!SOLO_ITEMS[k]){
+  if(theDaily()&&!SOLO_ITEMS[k]){
     toast("Not on the daily \u2014 everyone plays the identical six deals",2800);
     S.arm=null;drawTray();return;
   }
@@ -7825,7 +7885,7 @@ function recordHand(callers,cracked,net){
   /* the transcript the server will re-score: what was decided, never what it
      came to. Taken here rather than at each button because by now the hand has
      settled and the state is the thing that actually happened. */
-  if(S.daily)S.tape.push(me.setter
+  if(theDaily())S.tape.push(me.setter
     ?{word:S.word,tell:{k:S.tell.k,c:S.tell.c,i:S.tell.i},stake:S.stake}
     :role==="fold"?{call:false}
     :{call:true,guesses:me.guesses.slice()});
@@ -7880,7 +7940,7 @@ function startMatch(mode,code){
   setSeed(daily?hashStr("bluff-"+todayKey()):coded?hashStr("bluff-table-"+code):null);
   Mus.hype(!!speed);            /* the clock deserves the loud one */
   Snd.start();
-  newGame(daily||coded,speed);
+  newGame(daily||coded,speed,coded);
   if(coded)S.code=code;
   ovHide();startHand();
   if(coded)setTimeout(()=>eventBanner("TABLE "+code,
@@ -7890,8 +7950,8 @@ function startMatch(mode,code){
     +"the whole table watches it burn.",3600),450);
 }
 
-function newGame(isDaily,isSpeed){
-  const daily=!!isDaily;
+function newGame(isDaily,isSpeed,isCoded){
+  const daily=!!isDaily,coded=!!isCoded;
   const pool=daily?blankRivals():R;
   let seated;
   if(daily){
@@ -7903,8 +7963,8 @@ function newGame(isDaily,isSpeed){
   S={
     /* the button lands on you next hand, so a first-timer calls once and then sets —
        and the rotation still gives every seat the word exactly once across the six */
-    hand:0,button:(!daily&&firstRun())?SEATS-1:0,phase:"",word:null,card:null,tell:null,stake:0,pot:0,
-    tutorial:P.matches===0,daily:daily,speed:!!isSpeed,strip:[],log:[],tape:[],arm:null,
+    hand:0,button:((!daily||coded)&&firstRun())?SEATS-1:0,phase:"",word:null,card:null,tell:null,stake:0,pot:0,
+    tutorial:P.matches===0,daily:daily,coded:coded,speed:!!isSpeed,strip:[],log:[],tape:[],arm:null,
     script:daily?buildScript(seated):null,
     session:{delta:0,place:0},score:0,
     seats:[{i:0,you:true,name:P.handle||"YOU",chips:BUYIN,state:"",guesses:[],marks:[],
@@ -7943,7 +8003,10 @@ function endGame(){
   if(place===1)P.firsts++;
   if(P.bankroll>P.peakBank)P.peakBank=P.bankroll;
 
-  if(!S.daily){
+  if(S.coded){
+    /* a table you were sent: comparable with whoever sent it, and replayable,
+       so it settles in chips and leaves the ladder and the daily alone */
+  }else if(!S.daily){
     rd=ratingDelta(place,me.chips,field,P.rating);
     const tierNow=tierOf(P.rating),floor=tierNow[0];
     let nr=P.rating+rd;
@@ -8632,10 +8695,10 @@ function addFromUrl(){
   const m=(location.search+location.hash).match(/[?&#]add=([A-Za-z0-9]{2,9})/);
   return m?m[1].toUpperCase():null;
 }
-var PENDING_ADD=null;
+var PENDING_ADD=null,PENDING_CODE=null;
 function codeFromUrl(){
-  const m=(location.hash+location.search).match(/[/?#&=]t[/=]?([A-Z0-9]{3,6})/i)
-        ||location.href.match(/\/t\/([A-Z0-9]{3,6})/i);
+  const m=(location.search+location.hash).match(/[?&#]c=([A-Za-z0-9]{3,12})/)
+        ||location.href.match(/\/t\/([A-Za-z0-9]{3,12})/i);
   return m?m[1].toUpperCase():null;
 }
 
@@ -8977,7 +9040,7 @@ function buyOrEquip(c,id){
 }
 
 /* ══════════ SCREENS ══════════ */
-const avatarOf=()=>crestFor(P.handle||"?","big",P.crest);
+const avatarOf=(n,cls)=>crestFor(P.handle||"?",cls||"big",P.crest);
 /* There is nothing to pick a face from any more — the crest is your initials.
    What you pick is its colour, which is enough ownership to matter and small
    enough that the board still reads as one object. */
@@ -9160,6 +9223,9 @@ function challengeCode(a,b){
 
 function screenHome(){
   if(!P.handle)return screenHandle();
+  /* the table they were sent comes before anything else on this screen: it is
+     the thing they tapped a link to reach */
+  if(PENDING_CODE){const c=PENDING_CODE;PENDING_CODE=null;S.lastCode=c;return screenJoin(c);}
   if(PENDING_ADD){const a=PENDING_ADD;PENDING_ADD=null;if(a!==P.handle)return screenFriends(a);}
   stakeUp();                       /* the clock may have run out while it was shut */
   const t=tierOf(P.rating),nx=nextTier(P.rating);
@@ -9638,20 +9704,114 @@ function screenHandle(){
   };
 }
 
+function xHandle(){return (P.x&&P.x.handle)?P.x.handle:"";}
+function xVerified(){return !!(P.x&&P.x.handle&&P.x.verified);}
+
+/* ── the cabinet ──
+   A record shown as a case of things you earned rather than a table of numbers you accrued.
+   Every item is either a real achievement or absent; there are no zero rows and no placeholder
+   trophies, because a shelf of empty frames is worse than a short shelf. */
+function cabinet(){
+  const it=[];
+  if(P.bestBluff)it.push(["bluff","BEST BLUFF",P.bestBluff.word,
+    P.bestBluff.rate+"% card · "+P.bestBluff.callers+" called · nobody cracked it","+"+P.bestBluff.take]);
+  if(P.bigHand)it.push(["hand","BIGGEST HAND",P.bigHand.word,
+    P.bigHand.rate+"% card · "+P.bigHand.callers+" called","+"+P.bigHand.take]);
+  if(P.firsts)it.push(["first","WON OUTRIGHT",P.firsts+(P.firsts===1?" table":" tables"),
+    P.matches?Math.round(100*P.firsts/P.matches)+"% of everything you have played":"",""]);
+  if(P.bestStreak)it.push(["streak","BEST STREAK",P.bestStreak+(P.bestStreak===1?" day":" days"),
+    "current "+(P.streak||0),""]);
+  if(P.setHeld)it.push(["held","HELD THE WORD",P.setHeld+(P.setHeld===1?" time":" times"),
+    "out of "+P.setHands+" you set",""]);
+  if(P.peakRating>1500)it.push(["peak","PEAK RATING",String(P.peakRating),tierOf(P.peakRating)[1],""]);
+  if(!it.length)return "<div class='sect'>THE CABINET</div><p class='fine' style='text-align:left;margin-top:6px'>"
+    +"Empty. Hold a word nobody cracks, or win a table outright, and it starts filling.</p>";
+  /* a shelf, not an inventory — the best four, so connections stay above the fold */
+  return "<div class='sect'>THE CABINET</div><div class='cab'>"+it.slice(0,4).map(x=>
+    "<div class='cabi "+x[0]+"'><span class='k'>"+x[1]+"</span><b>"+x[2]+"</b>"
+    +(x[3]?"<span class='d'>"+x[3]+"</span>":"")
+    +(x[4]?"<u>"+x[4]+"</u>":"")+"</div>").join("")+"</div>";
+}
+
+/* ── connections ──
+   Friends were behind a button on the home screen and nowhere else. Who you play with is part
+   of who you are, so it lives on the profile: the list, who has played today, and one tap to
+   call any of them out. */
+function connections(){
+  const fr=(P.friends||[]).slice(0,8);
+  const k=todayKey(),sc=(FSC.day===k?FSC.scores:null);
+  const played=fr.filter(f=>sc&&sc[f.h]).length;
+  let h="<div class='sect'>CONNECTIONS</div>";
+  if(!fr.length){
+    h+="<p class='fine' style='text-align:left;margin-top:6px'>Nobody on the list yet. "
+      +"Send someone your handle and they land here.</p>"
+      +"<div class='row'><button class='btn alt' id='pfr'>FIND A FRIEND</button></div>";
+    return h;
+  }
+  h+="<p class='fine' style='text-align:left;margin:6px 0 8px'><b>"+fr.length+"</b> at the table"
+    +(sc?" · <b>"+played+"</b> played today":"")+". Tap one to call them out.</p>"
+    +"<div class='conx'>"+fr.map(f=>
+      "<button class='cx"+(sc&&sc[f.h]?" on":"")+"' data-h='"+f.h+"'>"+faceOf(f.h)
+      +"<span>"+f.h+"</span></button>").join("")+"</div>"
+    +"<div class='row'><button class='btn alt' id='pfr'>FRIENDS</button>"
+    +"<button class='btn alt' id='pfb'>FRIENDS BOARD</button></div>";
+  return h;
+}
+
+/* ── the X row ──
+   Identity only. Connecting reads your handle once and nothing else: no posting on your behalf,
+   no reading your timeline, no follow graph. Sharing goes through X's own composer, which costs
+   nothing and leaves the last word to you. */
+function xRow(){
+  const h=xHandle();
+  if(h)return "<div class='sect'>X</div><div class='xrow'>"
+    +"<span class='xg'>"+ico("x")+"</span><b>@"+h+"</b>"
+    +(xVerified()?"<em class='ok'>connected</em>":"<em>not verified</em>")
+    +"<button class='xoff' id='pxoff'>DISCONNECT</button></div>";
+  return "<div class='sect'>X</div>"
+    +"<div class='row'><button class='btn alt' id='pxon'>"+ico("x")+" CONNECT X"
+    +"<small>puts your handle on your profile — nothing is posted for you</small></button></div>";
+}
 function screenProfile(){
+  ovShow(
+   "<div class='plate'>"+avatarOf(P.handle,"xl")
+   +"<div class='pwho'><b>"+P.handle+"</b>"+badge(P.rating)
+   +"<em>at the table since "+prettyDate(P.made)+"</em></div></div>"
+   +"<div class='sgrid'>"
+     +"<div class='sc'><b>"+P.rating+"</b><span>RATING</span></div>"
+     +"<div class='sc'><b>"+P.bankroll.toLocaleString()+"</b><span>STARS</span></div>"
+     +"<div class='sc'><b>"+P.w+"\u2013"+P.l+"</b><span>RECORD</span></div>"
+   +"</div>"
+   +seatAskCard(true)
+   +cabinet()
+   +"<div class='row'><button class='btn' id='pcard'>SHARE MY CARD</button>"
+   +"<button class='btn alt' id='prec'>FULL RECORD</button></div>"
+   +connections()
+   +xRow()
+   +"<div class='sect'>YOUR CREST</div>"+facePicker(P.crest)
+   +"<div class='row'><button class='btn alt' id='pset'>SETTINGS</button>"
+   +"<button class='btn' id='bk'>BACK</button></div>",true);
+  wireFaces(f=>{P.crest=f;saveP();applyCosmetics();});
+  wireSeatAsk();
+  $("pcard").onclick=screenCard;
+  $("prec").onclick=screenRecord;
+  $("pset").onclick=screenSettings;
+  if($("pfr"))$("pfr").onclick=()=>screenFriends();
+  if($("pfb"))$("pfb").onclick=()=>screenBoard("friends");
+  [...document.querySelectorAll(".conx .cx")].forEach(b=>b.onclick=()=>screenDuel(b.dataset.h));
+  if($("pxon"))$("pxon").onclick=xConnect;
+  if($("pxoff"))$("pxoff").onclick=()=>{
+    P.x=null;saveP();toast("X disconnected");screenProfile();};
+  $("bk").onclick=screenHome;
+}
+
+/* everything the profile used to carry and no longer shows first */
+function screenRecord(){
   const crack=P.called?Math.round(100*P.cracked/P.called):0;
   const held=P.setHands?Math.round(100*P.setHeld/P.setHands):0;
   const read=P.foldsJudged?Math.round(100*P.goodFolds/P.foldsJudged):0;
   const row=(a,b,c)=>"<tr><td>"+a+"</td><td class='d'>"+(c||"")+"</td><td>"+b+"</td></tr>";
-  ovShow(
-   "<div class='hrow'>"+avatarOf(P.handle)+"<div class='hwho'><b>"+P.handle+"</b>"
-   +badge(P.rating)+"<em>at the table since "+prettyDate(P.made)+"</em></div></div>"
-   +"<div class='sgrid'>"
-     +"<div class='sc'><b>"+P.rating+"</b><span>RATING</span></div>"
-     +"<div class='sc'><b>"+P.bankroll.toLocaleString()+"</b><span>STARS</span></div>"
-     +"<div class='sc'><b>"+P.w+"–"+P.l+"</b><span>RECORD</span></div>"
-   +"</div>"
-   +seatAskCard(true)
+  ovShow("<h2>THE FULL RECORD</h2>"
    +((P.matches||0)?"<div class='sect'>THE TABLE</div><table class='lb'>"
    +row("Matches",P.matches)
    +row("Won outright",P.firsts,P.matches?Math.round(100*P.firsts/P.matches)+"%":"")
@@ -9673,14 +9833,12 @@ function screenProfile(){
    +row("Folded",P.foldedN,read+"% good laydowns")
    +row("Stars taken",(P.callChips>=0?"+":"")+P.callChips)
    +"</table>"
-   :"<div class='sect'>THE RECORD</div><p class='fine' style='text-align:left;margin-top:6px'>Nothing on the record yet. Play the daily and this fills in.</p>")
-   +(P.bestBluff?"<div class='sect'>BEST BLUFF</div><div class='hl'><b>"+P.bestBluff.word+"</b>"
-     +"<span>"+P.bestBluff.rate+"% card · "+P.bestBluff.callers+" called · nobody cracked it</span>"
-     +"<u>+"+P.bestBluff.take+"</u></div>":"")
-   +(P.bigHand?"<div class='sect'>BIGGEST HAND</div><div class='hl'><b>"+P.bigHand.word+"</b>"
-     +"<span>"+P.bigHand.rate+"% card · "+P.bigHand.callers+" called</span>"
-     +"<u>+"+P.bigHand.take+"</u></div>":"")
-   +"<div class='sect'>YOUR CREST</div>"+facePicker(P.crest)
+   :"<p class='fine'>Nothing on the record yet. Play the daily and this fills in.</p>")
+   +"<div class='row'><button class='btn' id='bk'>BACK</button></div>",true);
+  $("bk").onclick=screenProfile;
+}
+function screenSettings(){
+  ovShow("<h2>SETTINGS</h2>"
    +(CASH?"<div class='sect'>REGION</div>"
      +"<button class='cstrip' id='pgeo'><b>"+ico("globe")+" "+regionName().toUpperCase()+"</b>"
      +"<span>"+(cashEligible()?"eligible for cash prizes":"stars only")+"</span>"
@@ -9704,18 +9862,17 @@ function screenProfile(){
       "<button class='tb"+(((P.track||"auto")===t.id)?" on":"")+"' data-t='"+t.id+"'>"
       +t.n+(t.mood==="hype"?"<u>drop</u>":t.id==="auto"?"<u>rotates</u>":"<u>"+t.bpm+" bpm</u>")
       +"</button>").join("")+"</div>"
+   +"<div class='sect'>THE HOUSE</div>"
    +"<div class='row'><button class='btn alt' id='prls'>OFFICIAL RULES</button>"
    +"<button class='btn alt' id='prp'>PLAYING WELL</button></div>"
    +"<div class='row'><button class='btn alt' id='ppriv'>PRIVACY</button></div>"
    +accountRows()
    +"<div class='row'><button class='btn alt' id='wipe'>RESET CAREER</button>"
    +"<button class='btn' id='bk'>BACK</button></div>",true);
-  wireFaces(f=>{P.crest=f;saveP();applyCosmetics();});
-  wireSeatAsk();
   if($("pgeo"))$("pgeo").onclick=()=>screenGate(true);
-  $("prls").onclick=()=>screenLegal("rules",screenProfile);
-  $("prp").onclick=()=>screenLegal("play",screenProfile);
-  $("ppriv").onclick=()=>screenLegal("privacy",screenProfile);
+  $("prls").onclick=()=>screenLegal("rules",screenSettings);
+  $("prp").onclick=()=>screenLegal("play",screenSettings);
+  $("ppriv").onclick=()=>screenLegal("privacy",screenSettings);
   $("psnd").onclick=function(){
     P.mute=!P.mute;saveP();paintSnd();Mus.sync();
     this.classList.toggle("on",!P.mute);
@@ -9749,15 +9906,75 @@ function screenProfile(){
     document.getElementById("pmus").querySelector("b").textContent="ON";
     Mus.forced=null;Mus.track=null;Mus.stop();setTimeout(()=>Mus.start(),320);
   });
-  $("bk").onclick=screenHome;
   wireAccount();
   $("wipe").onclick=function(){
     if(this.dataset.armed){const h=P.handle;P=blankProfile();P.handle=h;R=blankRivals();
       saveP();saveR();toast("career wiped");screenHome();return;}
     this.dataset.armed="1";this.textContent="TAP AGAIN TO WIPE";this.classList.add("dan");
   };
+  $("bk").onclick=screenProfile;
+}
+/* ── the card ──
+   The session strip says what happened in one sitting. This says who you are, and it is the
+   thing worth posting when you have nothing to report today. Text, not an image: it survives
+   every client, it can be read by a screen reader, and X renders it as a post rather than a
+   picture of one. */
+function cardText(){
+  const t=tierOf(P.rating);
+  const L=[];
+  L.push("BLUFF \u2014 "+(P.handle||"YOU"));
+  L.push(t[1]+" \u00b7 "+P.rating);
+  if(P.matches)L.push(P.matches+(P.matches===1?" table":" tables")
+    +(P.firsts?" \u00b7 "+P.firsts+" won outright":""));
+  if(P.bestStreak)L.push("best streak "+P.bestStreak);
+  if(P.bestBluff)L.push("held "+P.bestBluff.word+" ("+P.bestBluff.rate+"%) against "
+    +P.bestBluff.callers+(P.bestBluff.callers===1?" caller":" callers"));
+  else if(P.setHeld)L.push("held the word "+P.setHeld+(P.setHeld===1?" time":" times"));
+  if(!P.matches)L.push("just sat down");
+  return L.join("\n");
+}
+function screenCard(){
+  const txt=cardText();
+  ovShow("<h2>YOUR CARD</h2>"
+   +"<div class='card'>"+txt.split("\n").map((l,i)=>
+      "<div class='cl"+(i===1?" big":"")+"' style='--i:"+i+"'>"+l+"</div>").join("")+"</div>"
+   +"<div class='row'><button class='btn' id='cp'>"+(canShare()?"SHARE":"COPY")+"</button>"
+   +"<button class='btn alt xbtn' id='cx'>"+ico("x")+" POST TO X</button></div>"
+   +"<div class='row'><button class='btn alt' id='bk'>BACK</button></div>"
+   +"<p class='fine'>Nothing is posted for you \u2014 X opens with this written out and you send it.</p>",true);
+  $("cp").onclick=()=>shareOut(txt,SITE,"card","copied");
+  $("cx").onclick=()=>postToX(txt,"card");
+  $("bk").onclick=screenProfile;
 }
 
+/* ── posting to X ──
+   The web intent, deliberately, and not the API: X bills $0.20 for a post containing a link,
+   the intent is free, and a post a human pressed send on reads better than one we wrote. The
+   link carries utm_source=x so /api/stats can attribute what actually arrives. */
+function postToX(text,medium){
+  const url=SITE+"?utm_source=x&utm_medium="+encodeURIComponent(medium||"share");
+  const u="https://x.com/intent/post?text="+encodeURIComponent(text+"\n\n")
+    +"&url="+encodeURIComponent(url);
+  try{window.open(u,"_blank","noopener");}catch(e){location.href=u;}
+}
+
+/* ── connect with X ──
+   Identity only: the flow reads your handle once and stores nothing else. It lives on the site
+   (a Pages Function holds the client secret and the PKCE verifier) and hands back ?x=handle.
+   If the credentials are not bound the endpoint says so and we tell the truth about it. */
+function xConnect(){
+  const back=encodeURIComponent(location.origin+location.pathname);
+  const u=SITE+"/api/x/start?back="+back;
+  try{window.open(u,"_blank","noopener");}catch(e){location.href=u;}
+  toast("finish in the window that opened",3200);
+}
+/* the callback returns to /play/?x=<handle>&xv=1 */
+function xFromUrl(){
+  const m=(location.search+location.hash).match(/[?&#]x=([A-Za-z0-9_]{1,15})/);
+  if(!m)return null;
+  const v=/[?&#]xv=1/.test(location.search+location.hash);
+  return {handle:m[1],verified:v,at:Date.now()};
+}
 function screenBoard(tab){
   const t=tab||"ladder";
   let body="",unit="",note="",extra="";
@@ -9827,12 +10044,14 @@ function screenShare(){
   const txt=shareText();
   ovShow("<h2>SHARE THE SESSION</h2>"
    +"<div class='card'>"+txt.split("\n").map((l,i)=>
-      "<div class='cl"+(i===1?" big":"")+"'>"+l+"</div>").join("")+"</div>"
-   +"<div class='row'><button class='btn' id='cp'>"+(canShare()?"SHARE":"COPY")+"</button></div>"
+      "<div class='cl"+(i===1?" big":"")+"' style='--i:"+i+"'>"+l+"</div>").join("")+"</div>"
+   +"<div class='row'><button class='btn' id='cp'>"+(canShare()?"SHARE":"COPY")+"</button>"
+   +"<button class='btn alt xbtn' id='sx'>"+ico("x")+" POST TO X</button></div>"
    +"<div class='row'><button class='btn alt' id='bk'>BACK</button></div>"
    +"<p class='fine'>The strip is the session hand by hand. "+SYM.held+" is a word you set that "
    +"nobody cracked — the one worth bragging about.</p>",true);
   $("cp").onclick=()=>shareOut(txt,SITE,"strip","copied");
+  $("sx").onclick=()=>postToX(txt,"strip");
   $("bk").onclick=()=>screenSummary(true);
 }
 
@@ -9852,11 +10071,17 @@ if("serviceWorker" in navigator&&location.protocol!=="file:")
   const n=Date.now();if(n-t<320)e.preventDefault();t=n;},{passive:false});})();
 
 (function(){
-  const c=codeFromUrl(),a=addFromUrl();
+  const c=codeFromUrl(),a=addFromUrl(),xh=xFromUrl();
   if(a)PENDING_ADD=a;
+  if(xh){P.x=xh;saveP();setTimeout(()=>toast("X connected \u2014 @"+xh.handle,2600),600);}
+  /* somebody opening an invite has not agreed yet and has no handle yet. The
+     table waits for them on the other side of the door, the way a friend link
+     already does -- screenHome picks it up once there is a handle to sit down
+     with. */
+  if(c)PENDING_CODE=c;
   if(!P.agreed)return screenGate();
-  if(c&&P.handle){S.lastCode=c;screenJoin(c);}
-  else screenHome();
+  if(c&&P.handle){PENDING_CODE=null;S.lastCode=c;return screenJoin(c);}
+  screenHome();
 })();
 </script>
 </body>

@@ -76,7 +76,7 @@ const path = 'file://' + __dirname + '/index.html';
   console.log('\n2. every door on the home screen');
   await hop('rules book', '#howto', '#ovC', '.btn');
   await page.waitForSelector('#cash');
-  await hop('profile behind your name', '#meBtn', '#wipe', '#bk');
+  await hop('profile behind your name', '#meBtn', '#pset', '#bk');
   await hop('store', '#store', '.cosgrid', '#bk');
   /* v1.0 ships with no way to spend money. A price tag whose button does nothing
      is an App Review rejection and a lie to the player, so the shelf stays empty
@@ -365,13 +365,14 @@ const path = 'file://' + __dirname + '/index.html';
   if (await page.evaluate(() => P.mute)) bad('unmute did not stick');
   else ok('and unmute brings it back');
   // and the same switch must be findable in the profile
-  await page.click('#meBtn'); await page.waitForSelector('#psnd');
+  await page.click('#meBtn'); await page.waitForSelector('#pset');
+  await page.click('#pset'); await page.waitForSelector('#psnd');
   await page.click('#psnd');
   const viaProfile = await page.evaluate(() => P.mute);
   await page.click('#psnd');
-  if (!viaProfile || await page.evaluate(() => P.mute)) bad('the profile sound switch does not work');
-  else ok('the same switch is in the profile');
-  await page.click('#bk'); await page.waitForSelector('#cash');
+  if (!viaProfile || await page.evaluate(() => P.mute)) bad('the settings sound switch does not work');
+  else ok('the same switch is in settings');
+  await page.click('#bk'); await page.click('#bk'); await page.waitForSelector('#cash');
 
   console.log('\n8. the speed table');
   await page.click('#speed');
