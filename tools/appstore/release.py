@@ -9,9 +9,12 @@ idempotent, so a re-run after a failure picks up where it stopped.
   python3 tools/appstore/release.py status                 what is on the record now
   python3 tools/appstore/release.py stage 1.1.3 202609081409
   python3 tools/appstore/release.py submit 1.1.3
+  python3 tools/appstore/release.py withdraw            pull the queued submission back
+  python3 tools/appstore/release.py rename 1.1.4 1.1.5  renumber a version that never shipped
+  python3 tools/appstore/release.py notes 1.1.5 tools/appstore/review-notes-1.1.5.txt
 
-Nothing here can be undone by this script -- a submitted version is withdrawn
-in the browser -- so `submit` asks for the word yes unless --yes is passed.
+`submit` asks for the word yes unless --yes is passed, and `withdraw` does the
+same, because both change what Apple is looking at.
 """
 import json, os, sys, urllib.request, urllib.error
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -167,6 +170,96 @@ def agerating(version, **answers):
         print(f"  age rating {k} -> {x}")
 
 
+def notes(version, path):
+    """Put the review notes on the version record.
+
+    Apple shows these to the reviewer beside the build. They are where an
+    optional sign-in, an absent advertising SDK and a deletion path get
+    explained before somebody has to guess."""
+    aid, _ = app_id()
+    v = next((x for x in versions(aid) if x["attributes"]["versionString"] == version), None)
+    if not v:
+        asc.die(f"no version {version} on the record")
+    text = open(path).read().strip()
+    if len(text) > 4000:
+        asc.die(f"review notes are {len(text)} characters; Apple's limit is 4000")
+    d = api("GET", f"/appStoreVersions/{v['id']}/appStoreReviewDetail", fatal=False)
+    did = ((d or {}).get("data") or {}).get("id")
+    if did:
+        api("PATCH", f"/appStoreReviewDetails/{did}", {"data": {
+            "type": "appStoreReviewDetails", "id": did,
+            "attributes": {"notes": text}}})
+    else:
+        api("POST", "/appStoreReviewDetails", {"data": {
+            "type": "appStoreReviewDetails",
+            "attributes": {"notes": text},
+            "relationships": {"appStoreVersion": {
+                "data": {"type": "appStoreVersions", "id": v["id"]}}}}})
+    print(f"review notes -> {version} ({len(text)} chars, {len(text.splitlines())} lines)")
+    first = next((l for l in text.splitlines() if l.strip()), "")
+    print(f"  opens with: {first[:78]}")
+
+
+def rename(old, new):
+    """Renumber a version record that has not shipped.
+
+    Only one version can sit in PREPARE_FOR_SUBMISSION at a time, so when a
+    release is withdrawn and replaced by a better one, the record is renumbered
+    rather than abandoned — otherwise the new version cannot be created at all."""
+    aid, _ = app_id()
+    v = next((x for x in versions(aid) if x["attributes"]["versionString"] == old), None)
+    if not v:
+        asc.die(f"no version {old} on the record")
+    st = v["attributes"]["appStoreState"]
+    editable = {"PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED",
+                "METADATA_REJECTED", "INVALID_BINARY"}
+    if st not in editable:
+        asc.die(f"version {old} is {st} — withdraw it first, and give Apple a minute to finish")
+    if any(x["attributes"]["versionString"] == new for x in versions(aid)):
+        asc.die(f"version {new} already exists")
+    api("PATCH", f"/appStoreVersions/{v['id']}", {"data": {
+        "type": "appStoreVersions", "id": v["id"],
+        "attributes": {"versionString": new}}})
+    print(f"version {old} is now {new} (id {v['id']}, was {st})")
+
+
+def withdraw(yes=False):
+    """Cancel the review submission that is queued but not yet being reviewed.
+
+    Apple lets a submission be cancelled right up until a reviewer opens it;
+    after that the browser is the only way. Cancelling returns every version in
+    the submission to PREPARE_FOR_SUBMISSION, which is what makes it possible to
+    supersede one release with a better one instead of shipping both."""
+    aid, _ = app_id()
+    subs = api("GET", f"/apps/{aid}/reviewSubmissions", params={"limit": "10"},
+               fatal=False) or {"data": []}
+    live = [s for s in subs["data"]
+            if s["attributes"].get("state") in
+            ("WAITING_FOR_REVIEW", "READY_FOR_REVIEW", "UNRESOLVED_ISSUES")]
+    if not live:
+        print("nothing queued — no submission to withdraw")
+        return
+    for sub in live:
+        st = sub["attributes"].get("state")
+        items = api("GET", f"/reviewSubmissions/{sub['id']}/items",
+                    params={"limit": "10", "include": "appStoreVersion"}, fatal=False) or {}
+        names = [i["attributes"].get("versionString", "?")
+                 for i in (items.get("included") or [])]
+        print(f"submission {sub['id']} is {st}" + (f" — holding {', '.join(names)}" if names else ""))
+        if st == "IN_REVIEW":
+            print("  a reviewer already has it; cancel this one in the browser")
+            continue
+        if not yes:
+            if input("  type yes to pull it back: ").strip().lower() != "yes":
+                print("  left alone")
+                continue
+        r = api("PATCH", f"/reviewSubmissions/{sub['id']}", {"data": {
+            "type": "reviewSubmissions", "id": sub["id"],
+            "attributes": {"canceled": True}}}, fatal=False)
+        state = ((r or {}).get("data", {}).get("attributes", {}) or {}).get("state")
+        print(f"  withdrawn: state {state or 'unknown — re-run status to confirm'}")
+
+
 def submit(version, yes=False):
     aid, _ = app_id()
     v = next((x for x in versions(aid) if x["attributes"]["versionString"] == version), None)
@@ -225,5 +318,11 @@ if __name__ == "__main__":
         agerating(sys.argv[2], **json.loads(sys.argv[3]))
     elif cmd == "submit":
         submit(sys.argv[2], yes="--yes" in sys.argv)
+    elif cmd == "withdraw":
+        withdraw(yes="--yes" in sys.argv)
+    elif cmd == "rename":
+        rename(sys.argv[2], sys.argv[3])
+    elif cmd == "notes":
+        notes(sys.argv[2], sys.argv[3])
     else:
         print(__doc__)
