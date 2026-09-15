@@ -24,7 +24,7 @@ const FILE=process.argv[2]||'file:///Users/rick/Downloads/bluff/index.html';
     await p.screenshot({path:`${dir}/table-${w}x${h}.png`});
     await p.evaluate(()=>{P.handle='';saveP();screenHandle();}); await p.waitForTimeout(300);
     await p.screenshot({path:`${dir}/handle-${w}x${h}.png`});
-    await p.evaluate(()=>{P.handle='SHOT';saveP();});
+    await p.evaluate(()=>{P.handle='SHOT';P.matches=3;saveP();});
     await p.evaluate(()=>startMatch('cash'));
     await p.waitForSelector('.wcard'); await p.waitForTimeout(400);
     await p.screenshot({path:`${dir}/deal-${w}x${h}.png`});

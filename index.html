@@ -846,6 +846,7 @@ html.marks .tile,html.marks .mini i,html.marks .k{position:relative}
 #cands{text-align:center;font-size:9.5px;color:var(--dim);letter-spacing:.05em;margin-top:5px}
 #cands b{color:var(--cream);font-weight:800;font-variant-numeric:tabular-nums}
 #cands.tight{color:var(--gold)}#cands.tight b{color:var(--gold)}
+#cands .eg{display:block;margin-top:3px;font-size:9px;color:var(--dim);opacity:.8;letter-spacing:.08em}
 .muck{background:#31221f;border:1px solid #593a33;color:#da9d91;border-radius:10px;
   height:40px;padding:0 11px;font-family:inherit;font-size:11px;font-weight:800;
   letter-spacing:.08em;cursor:pointer;flex:none;transition:.15s}
@@ -1088,6 +1089,71 @@ h1.reveal i{display:inline-block;font-style:normal;animation:bl-flipin var(--d-s
 /* short screens start high with a generous margin instead of floating dead-centre (walkthrough §1.6e) */
 #ov.solid{align-items:flex-start;padding-top:max(6vh,calc(16px + env(safe-area-inset-top)))}
 #ov.solid #ovC{max-height:calc(100vh - max(6vh,calc(16px + env(safe-area-inset-top))) - 16px - env(safe-area-inset-bottom))}
+/* ══════════ THE DRAWING (1.1.4) ══════════
+   Four things, in the order a player notices them: the table becomes paper, everything on
+   paper is re-inked, the word cards behave like cards, the markers carry denominations, and
+   one grain layer sits over the lot so nothing reads as flat screen colour. */
+
+/* ── grain. One tiled 64px SVG of fractal noise at 3.5%, fixed so it does not swim when a
+   panel scrolls, and out of the way of every pointer. Costs one rule and ~250 bytes. ── */
+body::after{content:"";position:fixed;inset:0;z-index:99;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='64' height='64' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:64px 64px;mix-blend-mode:overlay}
+
+/* ── paper: the table is a sheet, so what sits on it is set in ink, not in cream ── */
+body.paper #feltEl{box-shadow:inset 0 0 40px rgba(94,78,54,.13),inset 0 2px 0 rgba(255,255,255,.55),
+  0 1px 0 rgba(255,255,255,.25)}
+body.paper #feltEl::before,body.paper #feltEl::after{display:none}   /* no facets, no gleam */
+body.paper #betline{border:1px solid rgba(27,42,65,.10)}
+body.paper #mark{color:rgba(27,42,65,.045)}
+body.paper #potLbl{color:#6b6252}
+body.paper #potVal{color:#1b2a41;text-shadow:none}                    /* ochre is never text on paper */
+body.paper #potVal::after{opacity:.4}
+body.paper #centerNote{color:#7a7060}
+body.paper .seat .nm{color:#4b4436}
+body.paper .seat.you .nm{color:#1b2a41}
+body.paper .seat .ch{background:rgba(255,255,255,.82);border-color:rgba(27,42,65,.18);color:#1b2a41;
+  box-shadow:0 1px 2px rgba(94,78,54,.18)}
+body.paper .seat .ch::before{color:#b5813c;text-shadow:none}
+body.paper .seat .ava .ring{border-color:rgba(27,42,65,.22)}
+body.paper .seat.out{opacity:.42}
+body.paper .say{box-shadow:0 2px 8px rgba(94,78,54,.28)}
+
+/* ── the word cards. They are the best asset in the product and the one the store shows, and
+   they were flat rounded rectangles. Now: a paper ground with a printed rule under the word,
+   the crack rate in the display face, the band as a stamp rather than a pill, and a folded
+   corner so a card reads as a thing you could pick up. ── */
+.cards{gap:5px}
+.wcard{position:relative;overflow:hidden;
+  background:linear-gradient(177deg,#f8f4ec 0%,var(--card) 42%,#ebe3d4 100%);
+  border:1px solid #cfc4ae;border-radius:7px;padding:10px 3px 8px;
+  box-shadow:0 2px 0 #c6bba4,0 5px 12px rgba(0,0,0,.34)}
+.wcard::after{content:"";position:absolute;right:0;top:0;width:11px;height:11px;
+  background:linear-gradient(225deg,var(--bg) 0 50%,rgba(0,0,0,.12) 50% 54%,transparent 54%)}
+.wcard .w{font-family:var(--display);font-size:15px;font-weight:800;letter-spacing:.02em;
+  padding-bottom:5px;margin-bottom:1px;border-bottom:1px solid #d8cdba}
+.wcard .r{font-family:var(--display);font-size:17px;font-weight:800;margin-top:5px}
+.wcard .rl{font-size:6.5px;letter-spacing:.14em;color:#8a8272;margin-top:0}
+.wcard .bd{font-size:6.5px;letter-spacing:.13em;margin-top:5px;padding:3px 0;border-radius:2px;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.wcard.sel{border-color:var(--gold);box-shadow:0 2px 0 #b8863c,0 7px 18px rgba(212,172,123,.34)}
+
+/* ── markers. Flat discs with a thickness edge, one size per denomination, no shine. ── */
+.chip.m10{width:11px;height:11px;background:var(--cream);box-shadow:0 2px 0 #bdb2a0,0 0 0 1px rgba(0,0,0,.16) inset}
+.chip.m50{width:13px;height:13px;background:var(--gold);box-shadow:0 2px 0 #a9722f,0 0 0 1px rgba(0,0,0,.18) inset}
+.chip.m100{width:15px;height:15px;background:#25344b;box-shadow:0 2px 0 #131c29,0 0 0 1px rgba(255,255,255,.14) inset}
+body.paper .chip.m10{box-shadow:0 2px 0 #bdb2a0,0 0 0 1px rgba(27,42,65,.22) inset}
+
+/* ── the keyboard is what a thumb is on for most of a hand, so it is paper and ink too ── */
+.key{background:linear-gradient(180deg,#f6f2ea,#e9e2d4);color:#1b2a41;border:1px solid #cfc4ae;
+  box-shadow:0 2px 0 #c2b7a1;font-weight:800}
+.key:active{box-shadow:0 1px 0 #c2b7a1}
+.key.wide{background:linear-gradient(180deg,#e7e0d2,#d8cfbd);color:#2a3446}
+.key.h{background:var(--ink,#1b2a41);color:var(--cream);border-color:#101a2a;box-shadow:0 2px 0 #0d1520}
+.key.n{background:var(--gold);color:#141a24;border-color:#b3863f;box-shadow:0 2px 0 #a9722f}
+.key.m{background:#cdc4b3;color:#8c8474;border-color:#bdb3a0;box-shadow:0 2px 0 #b0a693}
+#kb.off{opacity:.5}
+@media (prefers-reduced-motion:reduce){body::after{display:none}}
 </style>
 </head>
 <body>
@@ -4823,6 +4889,7 @@ function evaluate(g,w){
 }
 const consistent=(cand,g,r)=>evaluate(g,cand).join("")===r.join("");
 
+const ORD=["1st","2nd","3rd","4th","5th","6th"];
 /* a tell is {k:'pin'|'float'|'void', c:letter, i:position} */
 function survivors(tell,pool){
   if(tell.k==="pin")   return pool.filter(w=>w[tell.i]===tell.c);
@@ -4904,6 +4971,81 @@ const ANTE=10,STAKES=[25,50,100],HANDS=6,SEATS=6;
    carry the wager. The fourth is a free swing: it settles nothing and pays
    nothing, it just means you rarely walk away without ever seeing it fall. */
 const GUESSES=4,BET=3;
+
+/* ══════════ THE READ — how much help this player needs ══════════
+   A word game is only worth playing in the band between "I can never get in"
+   and "I always get it". Nobody arrives in that band. One clue and three
+   scoring guesses out of a 3,576-word deck is a hard problem for a first-timer
+   and a fair one for somebody who has played fifty hands, so the table moves to
+   meet them instead of asking them to meet it.
+
+   Two rules keep it honest:
+
+   - THE DAILY IS NEVER ASSISTED. It is the same fixed problem for everyone in
+     the world, ranked against everyone in the world, and a board that mixed
+     helped and unhelped runs would not mean anything. The server re-scores the
+     transcript and cannot see a hint, so this is the client's promise to keep.
+     Help lives on the open tables, which is where learning belongs anyway.
+
+   - HELP IS ONLY EVER ADDED. Level 7 and up is the shipped game, untouched.
+     Nobody who is already enjoying the difficulty has it taken away; what the
+     level does is withdraw the scaffolding as it stops being needed. */
+const LEVEL_START=3;        /* where a player with no record is assumed to sit */
+const LEVEL_SAMPLE=12;      /* called hands before the read is trusted on its own */
+const clampv=(v,a,b)=>v<a?a:v>b?b:v;
+
+/* one called hand, scored for the read: cracked in time 1, cracked on the free
+   swing .5, missed 0 */
+function noteHand(v){
+  if(!P.form)P.form=[];
+  P.form.push(v);
+  while(P.form.length>20)P.form.shift();
+}
+function levelRead(){
+  const f=P.form||[];
+  const life=P.called?(P.cracked+.5*(P.late||0))/P.called:0;
+  const recent=f.length?f.reduce((a,b)=>a+b,0)/f.length:0;
+  /* recent form leads, because somebody who has just worked the game out is not
+     the player their lifetime average still describes */
+  const rate=f.length?recent*.7+life*.3:life;
+  /* how fast they get there is what separates a 6 from a 9 */
+  const avg=P.cracked?clampv(P.rows/P.cracked,1,GUESSES):BET;
+  /* somebody who has cracked nothing gets no speed credit for it -- without
+     this the floor of the scale is level 2 and the strongest help never fires */
+  const fast=P.cracked?clampv((GUESSES-avg)/(GUESSES-1),0,1):0;
+  const raw=1+9*clampv(rate*.8+fast*.2,0,1);
+  /* a level off two hands is noise, so it stays blended toward the starting
+     level until there is a real sample behind it */
+  const conf=clampv(f.length/LEVEL_SAMPLE,0,1);
+  return Math.round(raw*conf+LEVEL_START*(1-conf));
+}
+/* the stored level moves one step at a time. One bad hand should never drop a
+   good player into training wheels, and one lucky crack should never pull a
+   beginner's help out from under them mid-session. */
+function settleLevel(){
+  const want=clampv(levelRead(),1,10),now=P.level||LEVEL_START;
+  P.level=clampv(now+(want>now?1:want<now?-1:0),1,10);
+  saveP();
+  return P.level;
+}
+/* the level this particular hand is played at. A four-letter hand is the
+   hardest one at the table -- fewer positions to place, more words fitting the
+   same clue -- so it is met one step lower. */
+function handLevel(L){
+  if(P.assistOff)return 10;
+  let lv=P.level||LEVEL_START;
+  if(L===4)lv-=1;
+  return clampv(lv,1,10);
+}
+/* level -> what a caller is given. All of it is help ADDED. */
+function assistFor(lv){
+  return {
+    hints: lv<=2?2:lv<=4?1:0,        /* free HINT items dealt at the start of a match */
+    autoAt:lv<=1?2:lv<=3?3:0,        /* auto-spend an unused hint after this many misses */
+    sample:lv<=2?6:lv<=4?3:lv<=6?2:0 /* words that still fit, shown under the count */
+  };
+}
+function assisted(){return !(S&&S.daily)&&!P.assistOff;}
 /* A revealed green letter feels like far more information than it is.
    That misjudgement is why a bait pays -- so the bots carry it too. */
 const PINBIAS={pin:.14,float:.05,void:-.03};
@@ -4985,6 +5127,9 @@ function blankProfile(){return{
   setHands:0,setHeld:0,setNoTakers:0,setChips:0,setCrackedBy:0,
   called:0,cracked:0,late:0,missed:0,foldedN:0,foldsJudged:0,goodFolds:0,callChips:0,
   bigPot:0,bigHand:null,bestBluff:null,
+  /* the read: the last twenty called hands, the guesses they cost, and the
+     level those two imply. Ours, not theirs -- never shown as a rank. */
+  form:[],rows:0,level:0,assistOff:false,
   daily:{last:"",streak:0,best:0,score:null,skill:0,bestSkill:0,
          pending:null,rejected:null,rank:null,players:null,server:null,eligible:null},
   chest:{open:0,banked:0,lastWin:"",streak:0,best:0,sealed:0,lifetime:0,claimed:0}
@@ -5284,6 +5429,9 @@ async function apiCall(path,opts,ms){
    delivered — in which case it is queued rather than lost. */
 async function submitDaily(day,tape){
   const entry={day:day,device:deviceToken(),handle:P.handle||"YOU",
+    /* the read, for the board's information only. A daily run is never
+       assisted, and this says so in the payload rather than in a comment. */
+    level:P.level||0,assist:0,
     decisions:tape,age18:!!P.ageOK,
     /* the numbers the trait badges are derived from. The server bounds every
        one of them and computes the badge itself — this is the input, not the
@@ -6627,14 +6775,23 @@ function setPot(v){
 }
 
 /* ══════════ CHIPS IN FLIGHT ══════════ */
-function chipCount(amt){return amt>=100?5:amt>=50?4:amt>=25?3:2;}
-function flyChips(from,to,n,kind){
+/* one disc per denomination, biggest first, capped so a big pot does not become a swarm */
+function markers(amt){
+  const out=[];let n=Math.max(10,Math.round(amt));
+  while(n>=100&&out.length<6){out.push("m100");n-=100;}
+  while(n>=50 &&out.length<6){out.push("m50"); n-=50;}
+  while(n>0  &&out.length<6){out.push("m10"); n-=10;}
+  return out.length?out:["m10"];
+}
+function chipCount(amt){return markers(amt).length;}
+function flyChips(from,to,n,kind,amt){
   const layer=$("chipLayer");if(!layer)return;
+  const den=markers(amt==null?n*10:amt);
   const A=from==null?POTPOS:SEATPOS[from];
   const B=to==null?POTPOS:SEATPOS[to];
   for(let k=0;k<n;k++){
     const c=document.createElement("div");
-    c.className="chip"+(kind?" "+kind:"");
+    c.className="chip "+(den[k]||"m10")+(kind?" "+kind:"");
     c.style.left=A[0]+"%";c.style.top=A[1]+"%";
     c.style.transitionDelay=(k*65)+"ms";
     layer.appendChild(c);
@@ -6689,8 +6846,8 @@ function runPayout(sorted,then){
   });
   setTimeout(then,t+560);
 }
-function betAnim(seatIdx,amt){Snd.chip();flyChips(seatIdx,null,chipCount(amt),null);}
-function payAnim(seatIdx,amt,win){flyChips(null,seatIdx,chipCount(amt),win?"green":"red");}
+function betAnim(seatIdx,amt){Snd.chip();flyChips(seatIdx,null,chipCount(amt),null,amt);}
+function payAnim(seatIdx,amt,win){flyChips(null,seatIdx,chipCount(amt),win?"green":"red",amt);}
 
 /* ══════════ EVENT BANNER ══════════ */
 let evTimer=null;
@@ -6803,7 +6960,7 @@ function unknownLetter(word,seat){
   const known=new Set();
   (seat.marks||[]).forEach((m,gi)=>m.forEach((v,i)=>{if(v==="h")known.add(i);}));
   if(seat.given)seat.given.forEach(i=>known.add(i));
-  const spots=[0,1,2,3,4].filter(i=>!known.has(i));
+  const spots=Array.from({length:word.length},(_,i)=>i).filter(i=>!known.has(i));
   if(!spots.length)return null;
   return spots[Math.floor(rnd()*spots.length)];
 }
@@ -6818,7 +6975,7 @@ function applyLetter(seat,pos,fromName){
     const gv=document.querySelector(".brow.given");
     if(gv&&gv.children[pos]){gv.children[pos].className="tile h";gv.children[pos].textContent=ch;}
     eventBanner(fromName?fromName+" GAVE YOU A LETTER":"HINT",
-      "The "+["1st","2nd","3rd","4th","5th"][pos]+" letter is "+ch+"."
+      "The "+ORD[pos]+" letter is "+ch+"."
       +(fromName?" They wanted you to know they know.":""),3000);
   }else{
     /* a gifted letter must never leave a bot with a wider pool than it had --
@@ -6848,7 +7005,7 @@ function useItem(k,seat){
     const p=unknownLetter(S.word,seat);
     if(p==null)toast(seat.name+" already has it all");
     else{applyLetter(seat,p,P.handle);
-      toast("You handed "+seat.name+" the "+["1st","2nd","3rd","4th","5th"][p]+" letter",2800);}
+      toast("You handed "+seat.name+" the "+ORD[p]+" letter",2800);}
   }
   else if(k==="peek"&&seat){
     const g=seat.guesses[seat.guesses.length-1];
@@ -7181,6 +7338,10 @@ function botDecides(s){
 function hap(k){try{const C=window.Capacitor,H=C&&C.Plugins&&C.Plugins.Haptics;if(!H)return;
   H.impact({style:k==="heavy"?"HEAVY":k==="medium"?"MEDIUM":"LIGHT"});}catch(e){}}
 const fastPath=()=>(navigator.webdriver===true&&!window.__ritual)||matchMedia("(prefers-reduced-motion:reduce)").matches;
+/* A first run is a player with nothing on the record. The suites onboard fresh every time and
+   then navigate the full home, so under automation this is off unless a suite asks for it —
+   the same seam as __ritual and __talkAlways. firstrun.js sets it and walks the whole cold start. */
+const firstRun=()=>!P.matches&&(navigator.webdriver!==true||window.__fresh===true);
 function holdToFold(b,commit){
   let t=null,done=false;
   if(fastPath()){b.onclick=()=>{if(done)return;done=true;commit();};return;}
@@ -7327,9 +7488,21 @@ function givenTiles(){
 }
 function drawCands(){
   const el=$("cands");if(!el)return;
-  const n=(S.myPool||[]).length;
+  const pool=S.myPool||[],n=pool.length;
   el.innerHTML=n>1?"<b>"+n+"</b> words still fit"
     :n===1?"<b>one</b> word still fits":"nothing in the deck fits \u2014 trust your letters";
+  /* "107 words still fit" is a fact about the clue, not about the answer, and
+     any player with the deck could count it themselves. For somebody who has
+     not yet learned what a clue is worth, a handful of those words turns a
+     blank board into a choice. Never shown once the pool is small enough for
+     the list to BE the answer. */
+  if(assisted()&&n>12){
+    const k=assistFor(handLevel(S.word?S.word.length:5)).sample;
+    if(k){
+      const pick=pool.slice(0,60);shuf(pick);
+      el.innerHTML+="<span class='eg'>e.g. "+pick.slice(0,k).join(" \u00B7 ")+"</span>";
+    }
+  }
   el.className=n&&n<=6?"tight":"";
 }
 function narrowCands(){
@@ -7429,6 +7602,18 @@ function submit(){
     me.state=me.won?"crack":"late";Talk.on(me.won?"you_crack":"you_late");
     setTimeout(()=>Snd.crack(),470);
     return setTimeout(checkDone,700);
+  }
+  /* a beginner who has burned their guesses is the player who closes the app.
+     Spend the free hint for them rather than leaving it sitting in the tray
+     unrecognised -- the tray is a mechanic they have not learned yet. */
+  if(assisted()&&!me.cracked){
+    const a=assistFor(handLevel(S.word.length));
+    if(a.autoAt&&S.row>=a.autoAt&&S.row<GUESSES&&(me.items||[]).indexOf("hint")>-1){
+      spendItem(me,"hint");
+      const p=unknownLetter(S.word,me);
+      if(p!=null)applyLetter(me,p,null);
+      drawTray();
+    }
   }
   if(S.row>=GUESSES){me.state="bust";Talk.on("you_miss");setTimeout(()=>Snd.bust(),470);
     return setTimeout(checkDone,700);}
@@ -7541,8 +7726,8 @@ function showdown(){
   });
   setter.chips+=ANTE*(SEATS-1);
   callers.forEach((x,i)=>setTimeout(()=>{
-    if(x.cracked)flyChips(setter.i,x.i,chipCount(S.stake),"green");
-    else flyChips(x.i,setter.i,chipCount(S.stake),"red");
+    if(x.cracked)flyChips(setter.i,x.i,chipCount(S.stake),"green",S.stake);
+    else flyChips(x.i,setter.i,chipCount(S.stake),"red",S.stake);
   },i*170));
   S.pot=0;S.arm=null;drawTable();
   recordHand(callers,cracked,net);
@@ -7585,7 +7770,7 @@ function showdown(){
   let nxDone=false;
   $("nx").onclick=()=>{
     if(nxDone)return;nxDone=true;
-    ovHide();S.tutorial=(P.matches===0&&S.hand<1);S.hand++;S.button=(S.button+1)%SEATS;startHand();
+    ovHide();S.tutorial=(P.matches===0&&S.hand<2);S.hand++;S.button=(S.button+1)%SEATS;startHand();
   };
 }
 
@@ -7615,10 +7800,13 @@ function recordHand(callers,cracked,net){
       P.bestBluff={word:S.word,rate:RATE[S.word],callers:callers.length,take:net};
   }else if(me.won){
     role="crack";d=S.stake-ANTE;P.called++;P.cracked++;P.callChips+=d;sym=SYM.up;
+    P.rows=(P.rows||0)+me.guesses.length;noteHand(1);
   }else if(me.state==="late"){
     role="late";d=-S.stake-ANTE;P.called++;P.late=(P.late||0)+1;P.callChips+=d;sym=SYM.down;
+    noteHand(.5);
   }else if(me.state==="bust"){
     role="miss";d=-S.stake-ANTE;P.called++;P.missed++;P.callChips+=d;sym=SYM.down;
+    noteHand(0);
   }else{
     role="fold";d=-ANTE;P.foldedN++;P.callChips+=d;sym=SYM.fold;
     /* a laydown only counts as a read if somebody else actually played the hand */
@@ -7626,6 +7814,9 @@ function recordHand(callers,cracked,net){
   }
   /* money landing is the sound people are here for -- it plays the moment the
      hand pays, not only when the whole match settles up */
+  /* re-read them between hands, so help arrives inside the session that needs
+     it rather than at the end of the match they already left */
+  if(role==="crack"||role==="late"||role==="miss")settleLevel();
   if(d>0)setTimeout(()=>Snd.stars(d),420);
   const cls=sym===SYM.held?"held":sym===SYM.fold?"fold":sym===SYM.up?"up":"down";
   S.score=(S.score||0)+handScore(callers,cracked);
@@ -7710,7 +7901,9 @@ function newGame(isDaily,isSpeed){
   }else seated=seatRivals();
 
   S={
-    hand:0,button:0,phase:"",word:null,card:null,tell:null,stake:0,pot:0,
+    /* the button lands on you next hand, so a first-timer calls once and then sets —
+       and the rotation still gives every seat the word exactly once across the six */
+    hand:0,button:(!daily&&firstRun())?SEATS-1:0,phase:"",word:null,card:null,tell:null,stake:0,pot:0,
     tutorial:P.matches===0,daily:daily,speed:!!isSpeed,strip:[],log:[],tape:[],arm:null,
     script:daily?buildScript(seated):null,
     session:{delta:0,place:0},score:0,
@@ -7726,6 +7919,11 @@ function newGame(isDaily,isSpeed){
   lastChips={};
   S.seats.forEach(x=>{x.items=[];x.given=[];});
   grantItem(S.seats[0]);
+  /* a player who needs letters is dealt letters, not told to get better */
+  if(assisted()){
+    const a=assistFor(handLevel(5));
+    for(let i=0;i<a.hints;i++)grantItem(S.seats[0],"hint");
+  }
   S.seats.forEach(x=>{if(!x.you&&rnd()<.6)grantItem(x);});
 }
 
@@ -8448,8 +8646,11 @@ function codeFromUrl(){
 const COSM={
   /* every table is a cut stone: v is the body, g is the light it throws back */
   felt:[
-    {id:"f0",n:"EMERALD",  p:0,   v:["#232e40","#1e2836","#1a2232","#161d2b"],
-      g:["rgba(169,185,212,.17)","rgba(240,242,247,.44)","rgba(87,119,173,.19)"]},
+    /* The Paper Table, ratified 1 Sep: a sheet on a dark desk. No gleam — a specular sweep
+       is the single most casino thing a surface can do, and paper does not shine. Everything
+       that sits on it is re-inked under body.paper, below. */
+    {id:"f0",n:"PAPER",    p:0,   v:["#f6f2ea","#efe9dd","#e6decd","#dbd0bb"],
+      g:["rgba(0,0,0,0)","rgba(0,0,0,0)","rgba(0,0,0,0)"]},
     {id:"f1",n:"SAPPHIRE", p:2500,v:["#2d4168","#21304c","#162135","#0e1521"],
       g:["rgba(175,193,221,.16)","rgba(242,245,249,.42)","rgba(100,132,188,.19)"]},
     {id:"f2",n:"RUBY",     p:2500,v:["#66382f","#4b2922","#321b16","#1e100e"],
@@ -8507,6 +8708,7 @@ function applyCosmetics(){
   const f=findCos("felt",e.felt),ra=findCos("rail",e.rail);
   r.setProperty("--feltA",f.v[0]);r.setProperty("--feltB",f.v[1]);
   r.setProperty("--feltC",f.v[2]);r.setProperty("--feltD",f.v[3]);
+  document.body.classList.toggle("paper",f.id==="f0");   /* ink on the table, not cream */
   const g=f.g||COSM.felt[0].g;
   r.setProperty("--gleamA",g[0]);r.setProperty("--gleamB",g[1]);r.setProperty("--gleamIn",g[2]);
   r.setProperty("--railA",ra.v[0]);r.setProperty("--railB",ra.v[1]);
@@ -8962,13 +9164,14 @@ function screenHome(){
   stakeUp();                       /* the clock may have run out while it was shut */
   const t=tierOf(P.rating),nx=nextTier(P.rating);
   const done=dailyDone();
+  const fresh=firstRun();          /* nothing on the record yet — one line, one button */
   ovShow(
    "<div class='htop'>"
    +"<button class='hme' id='meBtn'>"+avatarOf(P.handle)
    +"<span class='hwho'><b>"+P.handle+"</b>"+badge(P.rating)+"</span></button>"
    +"<button class='hbook' id='hsnd'>"+ico(P.mute?"mute":"snd")+"</button>"
    +"<button class='hbook' id='howto'>"+ico("book")+"</button></div>"
-   +"<div class='sgrid'>"
+   +(fresh?"":"<div class='sgrid'>"
      +"<div class='sc'><b>"+P.rating+"</b><span>RATING</span></div>"
      +"<div class='sc'><b>"+P.bankroll.toLocaleString()+"</b><span>STARS</span></div>"
      +"<div class='sc'><b>"+P.w+"\u2013"+P.l+"</b><span>RECORD</span></div>"
@@ -8978,8 +9181,14 @@ function screenHome(){
      +"%;background:"+t[2]+"'></i></div><p class='fine'>"+(nx[0]-P.rating)
      +" rating to "+nx[1]+"</p>":"<p class='fine'>Top of the ladder.</p>")
    +prizeStrip()
-   +chestStrip()
-   +"<div class='row'><button class='btn' id='cash'>QUICK TABLE<small>stars and rating</small></button>"
+   +chestStrip())
+   +(fresh
+     ?"<p class='fine' style='margin:16px 0 4px'>Six seats, six hands. You set the word once and try "
+      +"to crack the other five. <b>Nobody is waiting on you</b> \u2014 take as long as you like.</p>"
+      +"<div class='row'><button class='btn go' id='cash'>PLAY YOUR FIRST HAND"
+      +"<small>about three minutes</small></button></div>"
+      +"<p class='fine'>Today's daily opens once you have played one.</p>"
+     :"<div class='row'><button class='btn' id='cash'>QUICK TABLE<small>stars and rating</small></button>"
    +"<button class='btn alt' id='speed'>"+ico("bolt")+" SPEED<small>90s a hand</small></button></div>"
    +"<div class='row'><button class='btn "+(done?"alt":"go")+"' id='daily'>"
      +(done?"DAILY PLAYED":"PLAY THE DAILY")+"<small>"
@@ -8988,16 +9197,16 @@ function screenHome(){
    +"<div class='row'><button class='btn alt' id='invite'>INVITE A FRIEND</button>"
    +"<button class='btn alt' id='fri'>FRIENDS</button></div>"
    +"<div class='row'><button class='btn alt' id='store'>\u2726 STORE</button></div>"
-   +inlineBoard()
+   +inlineBoard())
    +(Store.live?"":"<p class='fine warn'>This viewer blocks local storage, so your record "
      +"will not survive a reload. Open the file directly and it persists.</p>"),true);
   $("cash").onclick=()=>startMatch("cash");
-  $("speed").onclick=()=>startMatch("speed");
-  $("daily").onclick=()=>{if(done)return toast("Today is played. Come back tomorrow.");
+  if($("speed"))$("speed").onclick=()=>startMatch("speed");
+  if($("daily"))$("daily").onclick=()=>{if(done)return toast("Today is played. Come back tomorrow.");
     startMatch("daily");};
-  $("store").onclick=()=>screenStore();
-  $("invite").onclick=()=>screenTable();
-  $("fri").onclick=()=>((INV.list||[]).some(x=>!x.seen)?screenInvites():screenFriends());
+  if($("store"))$("store").onclick=()=>screenStore();
+  if($("invite"))$("invite").onclick=()=>screenTable();
+  if($("fri"))$("fri").onclick=()=>((INV.list||[]).some(x=>!x.seen)?screenInvites():screenFriends());
   paintInviteBadge();
   /* a challenge that landed while the app was shut should be visible without
      anybody going looking for it */
@@ -9011,7 +9220,7 @@ function screenHome(){
     if(P.mute)toast("sound off",1400);else Snd.stars(600);
   };
   $("hsnd").classList.toggle("muted",!!P.mute);
-  $("lead").onclick=()=>screenBoard("ladder");
+  if($("lead"))$("lead").onclick=()=>screenBoard("ladder");
   $("howto").onclick=help;
   if($("chestBtn"))$("chestBtn").onclick=screenChest;
 }
@@ -9457,6 +9666,7 @@ function screenProfile(){
    +row("Stars taken",(P.setChips>=0?"+":"")+P.setChips)
    +"</table>"
    +"<div class='sect'>WHEN THEY SET</div><table class='lb'>"
+   +row("Read level",(P.level||LEVEL_START)+" / 10","how much the table helps you")
    +row("Called",P.called)
    +row("Beat the setter",P.cracked,crack+"% of the time")
    +(P.late?row("Got it on the free swing",P.late,"solved, but too late to pay"):"")
@@ -9483,6 +9693,9 @@ function screenProfile(){
    +(P.noMusic?"OFF":"ON")+"</b><span>the background track</span><i></i></button>"
    +"<button class='toggle"+(P.quiet?"":" on")+"' id='ptalk'><b>"
    +(P.quiet?"OFF":"ON")+"</b><span>table talk \u2014 the regulars talk back</span><i></i></button>"
+   +"<button class='toggle"+(P.assistOff?"":" on")+"' id='phlp'><b>"
+   +(P.assistOff?"OFF":"ON")+"</b><span>a hand up when a hand is going badly</span>"
+   +"<i></i></button>"
    +"<button class='toggle"+(P.marks!==false?" on":"")+"' id='pmk'><b>"
    +(P.marks!==false?"ON":"OFF")+"</b><span>shapes on the tiles as well as colour</span>"
    +"<i></i></button>"
@@ -9513,6 +9726,11 @@ function screenProfile(){
     P.quiet=!P.quiet;saveP();
     this.classList.toggle("on",!P.quiet);
     this.querySelector("b").textContent=P.quiet?"OFF":"ON";
+  };
+  if($("phlp"))$("phlp").onclick=function(){
+    P.assistOff=!P.assistOff;saveP();
+    this.classList.toggle("on",!P.assistOff);
+    this.querySelector("b").textContent=P.assistOff?"OFF":"ON";
   };
   $("pmk").onclick=function(){
     P.marks=(P.marks===false);saveP();applyMarks();

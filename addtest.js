@@ -33,8 +33,10 @@ const log=[];let bad=0;const ok=(n,c,note)=>{log.push(`${c?'ok ':'BAD'} ${n}${no
   await p.goto('file:///Users/rick/Downloads/bluff/index.html?add='+me); await p.waitForTimeout(800);
   ok('own handle in the link → home, not friends', !!(await p.locator('#cash').count()));
   // 4. home labels
+  await p.evaluate(()=>{P.matches=3;saveP();screenHome();}); await p.waitForTimeout(200);
   const labels=await p.evaluate(()=>['cash','invite','fri','store'].map(id=>{const e=document.getElementById(id);return e?e.textContent.replace(/\s+/g,' ').trim():'-'}));
   ok('home labels', labels[0].startsWith('QUICK TABLE')&&labels[1]==='INVITE A FRIEND'&&labels[2]==='FRIENDS', labels.join(' | '));
+  await p.evaluate(()=>{P.matches=0;saveP();});   // back to a fresh record for the profile checks below
   await p.evaluate(()=>screenTable()); await p.waitForTimeout(150);
   ok('table h2 DEAL THEM IN', (await p.locator('#ovC h2').first().textContent())==='DEAL THEM IN');
   await p.evaluate(()=>screenDuel('ACE')); await p.waitForTimeout(150);

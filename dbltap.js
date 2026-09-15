@@ -11,6 +11,7 @@ const log=[];let bad=0;const ok=(n,c,note)=>{log.push(`${c?'ok ':'BAD'} ${n}${no
   await p.fill('#hnd','D'+Math.random().toString(36).replace(/[^a-z0-9]/g,'').slice(0,5).toUpperCase());
   await p.click('#go2'); await p.waitForSelector('#cash');
   await p.evaluate(()=>{window.__pa=0;window.__pp=0;const a=phaseAction;phaseAction=function(){window.__pa++;return a.apply(this,arguments)};const q=phasePlay;phasePlay=function(){window.__pp++;return q.apply(this,arguments)};});
+  await p.evaluate(()=>{P.matches=3;saveP();});   // the setter path is a returning player's
   await p.evaluate(()=>startMatch('cash')); await p.waitForSelector('.wcard');
   // setter: hammer every button
   await p.locator('.wcard').nth(1).click();
